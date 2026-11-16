@@ -1,0 +1,4 @@
+stage,state,accepted,upper,reason,columns
+"3","1","true","0.0","gap","1"
+"2","0","true","2.0","gap","1"
+"1","0","true","2.0","root","1"

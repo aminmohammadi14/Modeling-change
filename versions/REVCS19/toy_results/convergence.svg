@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="420" viewBox="0 0 800 420"><rect width="800" height="420" fill="white"/><text x="50" y="25">Computed whole-horizon bounds (finite values only)</text>
+<path d="M50 45V370H760" fill="none" stroke="black"/><text x="50" y="410">Iteration; blue = LB, red = UB</text>
+<circle cx="50.0" cy="370.0" r="3" fill="blue"><title>iteration 1: 0.0</title></circle>
+<circle cx="760.0" cy="60.00059127779423" r="3" fill="blue"><title>iteration 2: 1.9999961853045534</title></circle>
+<polyline points="50.0,370.0 760.0,60.00059127779423" fill="none" stroke="blue"/>
+<circle cx="50.0" cy="60.0" r="3" fill="red"><title>iteration 1: 2.0</title></circle>
+<circle cx="760.0" cy="60.0" r="3" fill="red"><title>iteration 2: 2.0</title></circle>
+<polyline points="50.0,60.0 760.0,60.0" fill="none" stroke="red"/>
+</svg>

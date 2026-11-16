@@ -1,0 +1,32 @@
+root_scope = "toy Q1"
+trust_on_load = "unverified_import"
+horizon = 3
+schema = "REVCS19-policy-v2"
+
+[stages.4]
+samples = []
+cuts = []
+
+[stages.1]
+cuts = []
+
+    [[stages.1.samples]]
+    scope = "toy Q1"
+    bits = [0]
+    value = 2.0
+
+[stages.2]
+cuts = []
+
+    [[stages.2.samples]]
+    scope = "toy Q2"
+    bits = [0]
+    value = 2.0
+
+[stages.3]
+cuts = []
+
+    [[stages.3.samples]]
+    scope = "toy Q3"
+    bits = [1]
+    value = 0.0

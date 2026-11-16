@@ -1,0 +1,11 @@
+iteration,phase,stage,reason,lower,upper,role,screening_source,screening_oracle_gap_closed
+"1","forward","1","root","0.0","0.0","lower","lower_fallback","true"
+"1","forward","2","gap","2.0","2.0","lower","lower_fallback","true"
+"1","forward","3","gap","0.0","0.0","exact","upper","true"
+"1","backward","3","gap","0.0","0.0","exact","none","false"
+"1","backward","2","gap","2.0","2.0","upper","none","false"
+"2","forward","1","root","2.0","2.0","upper","upper","true"
+"2","forward","2","gap","2.0","2.0","upper","upper","true"
+"2","forward","3","gap","2.0","2.0","exact","upper","true"
+"2","backward","3","gap","2.0","2.0","exact","none","false"
+"2","backward","2","gap","2.0","2.0","upper","none","false"

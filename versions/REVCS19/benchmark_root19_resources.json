@@ -1,0 +1,14 @@
+{
+  "entry": "benchmark_root19.jl",
+  "args": [],
+  "exit_code": 0,
+  "wall_seconds": 115.66524013099999,
+  "user_cpu_seconds": 52.734657,
+  "system_cpu_seconds": 1.7098879999999999,
+  "maximum_process_rss_bytes": 1059811328,
+  "memory_measurement": "Linux ru_maxrss: entire child process including Julia/JIT/solver",
+  "soc_min": "0.1",
+  "soc_initial": "0.5",
+  "soc_max": "0.9",
+  "cycle": "daily_cyclic"
+}

@@ -1,0 +1,7 @@
+upper_extension = "finite on certified sample codebook; +Inf elsewhere"
+scope = "toy Q1"
+converged = true
+reason = "gap"
+lower = 1.9999961853045534
+upper = 2.0
+full_paper_reproduction = false

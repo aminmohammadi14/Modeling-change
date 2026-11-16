@@ -1,0 +1,13 @@
+path,stage,feasible,method,seconds,attempts,status
+"1","1","true","portfolio_lp","0.36768293380737305","1","OPTIMAL"
+"1","2","true","portfolio_lp","0.0026259422302246094","1","OPTIMAL"
+"1","3","true","portfolio_lp","0.0017130374908447266","1","OPTIMAL"
+"2","1","true","portfolio_lp","0.002093076705932617","1","OPTIMAL"
+"2","2","true","portfolio_lp","0.001744985580444336","1","OPTIMAL"
+"2","3","true","portfolio_lp","0.0016930103302001953","1","OPTIMAL"
+"3","1","true","portfolio_lp","0.0014791488647460938","1","OPTIMAL"
+"3","2","true","portfolio_lp","0.0014889240264892578","1","OPTIMAL"
+"3","3","true","portfolio_lp","0.0015709400177001953","1","OPTIMAL"
+"4","1","true","portfolio_lp","0.0020399093627929688","1","OPTIMAL"
+"4","2","true","portfolio_lp","0.0017359256744384766","1","OPTIMAL"
+"4","3","true","portfolio_lp","0.0017011165618896484","1","OPTIMAL"

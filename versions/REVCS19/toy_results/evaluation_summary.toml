@@ -1,0 +1,12 @@
+maximum_response_seconds = 0.36768293380737305
+portfolio_lp_successes = 12
+count = 4
+completed = 4
+failure_rate = 0.0
+minimum = 2.0
+unconditional_mean = 2.0
+response_seconds = 0.38756895065307617
+failed = 0
+robust_upper_claim = false
+conditional_mean = 2.0
+maximum = 2.0

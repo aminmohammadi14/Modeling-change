@@ -1,0 +1,78 @@
+name: REVCS package and validation
+on:
+  push:
+    branches: ['revcs/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify original version checksums
+        working-directory: versions/REVCS19
+        run: sha256sum -c SHA256SUMS.txt
+      - name: Build complete source package
+        run: python3 scripts/package.py
+      - name: Upload downloadable source ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: REVCS-source-${{ github.sha }}
+          path: dist/*.zip
+          if-no-files-found: error
+          retention-days: 90
+
+  validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10.10'
+      - uses: julia-actions/cache@v2
+      - name: Install pinned environment
+        run: julia --project=versions/REVCS19 -e 'using Pkg; Pkg.instantiate()'
+      - name: Execute numeric regression tests
+        id: tests
+        shell: bash
+        run: |
+          mkdir -p .ci-report
+          failed=0
+          for name in growth certified native audit repair worst_scenario physical_symbolic; do
+            if julia --project=versions/REVCS19 "versions/REVCS19/test_${name}19.jl" > ".ci-report/${name}.log" 2>&1; then
+              echo "PASS ${name}" | tee -a .ci-report/summary.txt
+            else
+              echo "FAIL ${name}" | tee -a .ci-report/summary.txt
+              failed=1
+            fi
+          done
+          exit "$failed"
+      - name: Record CI outcome
+        if: always()
+        env:
+          TEST_OUTCOME: ${{ steps.tests.outcome }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          mkdir -p .ci-report
+          python3 - <<'PY'
+          import os, json
+          from pathlib import Path
+          Path('.ci-report/status.json').write_text(json.dumps({
+            'commit': os.environ['COMMIT_SHA'],
+            'tests_outcome': os.environ['TEST_OUTCOME'],
+            'full_paper_reproduction': False
+          }, indent=2))
+          PY
+      - name: Upload validation logs even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: REVCS-validation-${{ github.sha }}
+          path: .ci-report/
+          if-no-files-found: error
+          retention-days: 90

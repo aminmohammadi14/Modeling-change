@@ -1,0 +1,4 @@
+dist/
+.ci-report/
+__pycache__/
+*.pyc

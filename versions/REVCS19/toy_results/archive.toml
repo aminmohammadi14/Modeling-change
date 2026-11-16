@@ -1,0 +1,60 @@
+root_scope = "toy Q1"
+trust_on_load = "unverified_import"
+horizon = 3
+schema = "REVCS19-policy-v2"
+
+[stages.4]
+samples = []
+cuts = []
+
+[stages.1]
+cuts = []
+
+    [[stages.1.samples]]
+    scope = "toy Q1"
+    bits = [0]
+    value = 2.0
+
+[[stages.2.samples]]
+scope = "toy Q2"
+bits = [0]
+value = 2.0
+
+[[stages.2.cuts]]
+slope = [0.0]
+intercept = 0.0
+anchor_lower = 0.0
+anchor_upper = 0.0
+scope = "toy Q2"
+converged = true
+[[stages.2.cuts]]
+slope = [-1.9999961853045534]
+intercept = 1.9999961853045534
+anchor_lower = 1.9999961853045534
+anchor_upper = 1.9999980926513672
+scope = "toy Q2"
+converged = true
+
+[[stages.3.samples]]
+scope = "toy Q3"
+bits = [0]
+value = 2.0
+[[stages.3.samples]]
+scope = "toy Q3"
+bits = [1]
+value = 0.0
+
+[[stages.3.cuts]]
+slope = [0.0]
+intercept = 0.0
+anchor_lower = 0.0
+anchor_upper = 0.0
+scope = "toy Q3"
+converged = true
+[[stages.3.cuts]]
+slope = [-1.9999980926513672]
+intercept = 1.9999980926513672
+anchor_lower = 1.9999980926513672
+anchor_upper = 2.0
+scope = "toy Q3"
+converged = true

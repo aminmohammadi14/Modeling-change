@@ -1,0 +1,2 @@
+context,sense,termination,primal,variables,constraints,seconds,allocated_bytes,gc_seconds,incumbent,bound
+"decision t=1 lower milp","MIN_SENSE","TIME_LIMIT","FEASIBLE_POINT","75361","148946","40.15968507","123167824","0.040575086","904763.1428393596","894668.447213649"

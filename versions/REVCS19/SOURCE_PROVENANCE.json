@@ -1,0 +1,18 @@
+{
+  "uploaded_repair": {
+    "name": "REVCS18_forward_recourse_repair.jl",
+    "sha256": "a9618cebc20f0890a0e979df3686e1b2cc16329d0c5ea7b48633c30b7b159033"
+  },
+  "uploaded_audit": {
+    "name": "REVCS18_audit_report_FA.md",
+    "sha256": "07da298d4821ef4a384c756ea675739ef5702ad1541d2990925b3e60705b0001"
+  },
+  "paper": {
+    "name": "sim 00.pdf",
+    "sha256": "1bcb339d9ccc17fe97cd1d65052173acbc9386f451feffacc72b7a607b1f6b88"
+  },
+  "supplement": {
+    "name": "Data of 33P-12U and 54P-25U systems (1).pdf",
+    "sha256": "7401f1110de37bf64e9649e055e7092f2cc6038a2b97437e45c919b11d8791a2"
+  }
+}
