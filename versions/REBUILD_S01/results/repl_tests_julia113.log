@@ -1,0 +1,8 @@
+گام اول موفق: خواندن ۱۱ جدول، کنترل داده‌ها و تولید ۴ نمودار ورودی. مدل بهینه‌سازی اجرا نشده است.
+Test Summary:                      | Pass  Total  Time
+S01: source data and time indexing |   23     23  6.5s
+گام اول موفق: خواندن ۱۱ جدول، کنترل داده‌ها و تولید ۴ نمودار ورودی. مدل بهینه‌سازی اجرا نشده است.
+Test Summary:                      | Pass  Total  Time
+S01: source data and time indexing |   23     23  2.3s
+Test Summary:  | Pass  Total  Time
+REPL isolation |    2      2  1.2s
