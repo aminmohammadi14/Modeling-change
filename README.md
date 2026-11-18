@@ -2,6 +2,19 @@
 
 کد برنامه‌ریزی ایستگاه‌های شارژ برای شبکهٔ ۳۳ باس برق و ۱۲ گرهٔ حمل‌ونقل.
 
+## بازنویسی مرحله‌به‌مرحله — S01
+
+- [راهنمای گام اول](versions/REBUILD_S01/README_FA.md)
+- [کد کامل گام اول با توضیحات فارسی](versions/REBUILD_S01/run_step01.jl)
+- [دانلود ZIP گام اول](versions/REBUILD_S01/REBUILD_S01_complete.zip)
+- [ابهام‌های داده و مدل](versions/REBUILD_S01/ISSUES_FA.md)
+- [نقشهٔ شکل‌های مقاله](versions/REBUILD_S01/FIGURES_FA.md)
+
+این گام داده‌های منبع را می‌خواند، کنترل می‌کند و نمودار ورودی می‌سازد؛ هنوز مدل بهینه‌سازی نیست. گزارش هر تغییر در REUSE.md ثبت می‌شود.
+
+## سابقهٔ نسخهٔ ۱۹
+
+
 - [دفتر ثابت گزارش‌ها، پرسش‌ها و تغییرات](REUSE.md)
 - [کد کامل نسخهٔ ۱۹](versions/REVCS19/revcs_planning19.jl)
 - [راهنمای نصب و اجرا](versions/REVCS19/README_FA.md)

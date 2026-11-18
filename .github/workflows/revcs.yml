@@ -74,5 +74,33 @@ jobs:
         with:
           name: REVCS-validation-${{ github.sha }}
           path: .ci-report/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90
+
+  rebuild-step01:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10.10'
+      - name: Verify step package checksums
+        working-directory: versions/REBUILD_S01
+        run: sha256sum -c SHA256SUMS.txt
+      - name: Validate source data and build input figures
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p step01-results
+          julia versions/REBUILD_S01/test_step01.jl 2>&1 | tee step01-results/tests.log
+          julia versions/REBUILD_S01/run_step01.jl versions/REBUILD_S01 step01-results
+      - name: Upload step results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: REBUILD-S01-results-${{ github.sha }}
+          path: step01-results/
           if-no-files-found: error
           retention-days: 90

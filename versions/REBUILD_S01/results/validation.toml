@@ -1,0 +1,19 @@
+step = "S01"
+hours_per_period = 96
+optimization_run = false
+unresolved = ["UTN_direction_and_candidate_paths", "road_to_bus_mapping_review", "BESS_energy_power_SOC_boundaries", "voltage_impedance_units_and_base", "charging_energy_Delta_p", "discount_sigma", "annual_TOI_weighting", "load_bus_set_and_reactive_load", "existing_station_initial_state", "Eq33_vs_Eq41", "state_discretization_and_upper_penalty"]
+input_validation = "passed"
+buses = 33
+lines = 37
+paper_results_reproduced = false
+roads = 20
+
+[sources.paper]
+sha256 = "1bcb339d9ccc17fe97cd1d65052173acbc9386f451feffacc72b7a607b1f6b88"
+pages = 16
+filename = "sim 00.pdf"
+
+[sources.supplement]
+sha256 = "7401f1110de37bf64e9649e055e7092f2cc6038a2b97437e45c919b11d8791a2"
+pages = 8
+filename = "Data of 33P-12U and 54P-25U systems (1).pdf"

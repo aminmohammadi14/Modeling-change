@@ -1,0 +1,43 @@
+# فقط مقادیر مستند مقاله؛ تغییر پارامترها از فایل داده انجام می‌شود.
+[scope]
+case_id = "33P-12U"
+buses = 33
+transport_nodes = 12
+periods = 3
+years_per_period = 1
+hours_per_day = 24
+typical_days = 4
+source = "paper: PDF page 9 (printed page 3765), IV.A-B"
+
+[traffic]
+# عنوان جدول ۲ تکرار دقیق روز اول در سه روز دیگر را تصریح می‌کند.
+repeat_first_day = true
+source = "supplement: Table 2, page 2, caption"
+
+[costs]
+construction_USD = 110000.0
+maintenance_USD = 20000.0
+onsite_PV_expansion_USD_per_kW = 1000.0
+FCS_expansion_USD_per_kW = 200.0
+BESS_expansion_USD_per_kW_as_printed = 600.0
+WT_curtailment_USD_per_kWh = 2.0
+PV_curtailment_USD_per_kWh = 2.0
+imbalance_USD_per_kWh = 10.0
+substation_USD_per_kWh = 0.3
+free_travel_USD_per_min = 0.012
+delayed_travel_USD_per_min = 0.04
+source = "paper: PDF page 9 (printed page 3765), IV.A"
+
+[uncertainty]
+# ضرایب نسبت به سال اولیه‌اند؛ این مرحله هیچ رشد مرکب دوره‌به‌دوره‌ای نمی‌سازد.
+periods_with_growth = [2, 3]
+DRE_capacity_multiplier_intervals = [[1.3, 1.5], [1.8, 2.0]]
+traffic_multiplier_intervals = [[1.3, 1.5], [1.7, 2.0]]
+WT_forecast_multiplier_interval = [0.75, 1.25]
+PV_forecast_multiplier_interval = [0.9, 1.1]
+source = "paper: IV.B page 9; initial-year formulation equations 48-52"
+
+[readiness]
+# این‌ها پیش‌فرض عددی ندارند؛ تا بررسی علمی، ورود خودکار به مدل ممنوع است.
+optimization_ready = false
+unresolved = ["UTN_direction_and_candidate_paths", "road_to_bus_mapping_review", "BESS_energy_power_SOC_boundaries", "voltage_impedance_units_and_base", "charging_energy_Delta_p", "discount_sigma", "annual_TOI_weighting", "load_bus_set_and_reactive_load", "existing_station_initial_state", "Eq33_vs_Eq41", "state_discretization_and_upper_penalty"]

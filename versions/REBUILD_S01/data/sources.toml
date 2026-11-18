@@ -1,0 +1,11 @@
+# شناسهٔ نسخهٔ منابع ارسال‌شده؛ خود PDFها بازنشر نشده‌اند.
+
+[paper]
+filename = "sim 00.pdf"
+sha256 = "1bcb339d9ccc17fe97cd1d65052173acbc9386f451feffacc72b7a607b1f6b88"
+pages = 16
+
+[supplement]
+filename = "Data of 33P-12U and 54P-25U systems (1).pdf"
+sha256 = "7401f1110de37bf64e9649e055e7092f2cc6038a2b97437e45c919b11d8791a2"
+pages = 8
