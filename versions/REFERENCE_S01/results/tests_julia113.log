@@ -1,0 +1,4 @@
+گام اول موفق: خواندن ۱۱ جدول، کنترل داده‌ها و تولید ۴ نمودار ورودی. مدل بهینه‌سازی اجرا نشده است.
+مسیر خروجی: /workspace/revcs-rebuild/versions/REFERENCE_S01/results_REFERENCE_S01
+Test Summary:                              | Pass  Total  Time
+Reference rewrite preserves sourced inputs |    9      9  3.9s

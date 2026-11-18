@@ -11,3 +11,5 @@
 - Code and reports are public in this repository. Do not add credentials, account data, or unrelated user files.
 
 - Deliver a single self-contained .jl runtime file for every future step. Bundle sourced data in a clearly separated section of that file; do not require separate data/test files for the user to run it. Keep development tools and provenance in Git.
+
+- Current rewrite base is the user-supplied CODE REFRENCE.jl archived in reports/CHG-0007. Continue from versions/REFERENCE_S01/CODE_REFERENCE.jl (or its next version), retaining the sourced input arrays. Do not silently switch the main development line back to the earlier standalone prototype.

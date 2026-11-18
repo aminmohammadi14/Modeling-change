@@ -107,6 +107,11 @@ jobs:
           cp versions/REBUILD_S01/revcs_step01_integrated.jl singlefile-only/
           julia --depwarn=error singlefile-only/revcs_step01_integrated.jl 2>&1 | tee step01-results/singlefile.log
           julia --depwarn=error -e 'include(ARGS[1])' singlefile-only/revcs_step01_integrated.jl 2>&1 | tee step01-results/singlefile_include.log
+          julia --depwarn=error scripts/test_reference_s01.jl 2>&1 | tee step01-results/reference_tests.log
+          mkdir -p reference-only
+          cp versions/REFERENCE_S01/CODE_REFERENCE.jl reference-only/
+          julia --depwarn=error reference-only/CODE_REFERENCE.jl 2>&1 | tee step01-results/reference_run.log
+          julia --depwarn=error -e 'include(ARGS[1])' reference-only/CODE_REFERENCE.jl 2>&1 | tee step01-results/reference_include.log
       - name: Upload step results
         if: always()
         uses: actions/upload-artifact@v4
@@ -115,5 +120,6 @@ jobs:
           path: |
             step01-results/
             singlefile-only/results_S01/
+            reference-only/results_REFERENCE_S01/
           if-no-files-found: error
           retention-days: 90

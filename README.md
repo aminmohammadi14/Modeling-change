@@ -1,3 +1,20 @@
+# مسیر جاری: اصلاح گام‌به‌گام فایل ارسالی کاربر
+
+مبنای ادامه، `CODE REFRENCE.jl` ارسالی کاربر است. نسخهٔ اصلی در گزارش CHG-0007 محفوظ است.
+
+- [فایل کامل اصلاح اول: CODE_REFERENCE.jl](versions/REFERENCE_S01/CODE_REFERENCE.jl)
+- [ZIP شامل فقط فایل اجرایی](versions/REFERENCE_S01/REFERENCE_S01_SINGLEFILE.zip)
+- [تغییرات و مراحل بعد](versions/REFERENCE_S01/README_FA.md)
+- [گزارش دائمی](REUSE.md)
+
+```powershell
+julia CODE_REFERENCE.jl
+```
+
+این نسخه گام اول داده است. خروجی در results_REFERENCE_S01 ساخته می‌شود.
+
+---
+
 # REVCS — 33P–12U
 
 کد برنامه‌ریزی ایستگاه‌های شارژ برای شبکهٔ ۳۳ باس برق و ۱۲ گرهٔ حمل‌ونقل.
