@@ -103,11 +103,17 @@ jobs:
           julia --depwarn=error versions/REBUILD_S01/test_step01.jl 2>&1 | tee step01-results/tests.log
           julia --depwarn=error versions/REBUILD_S01/test_repl_step01.jl 2>&1 | tee step01-results/repl_tests.log
           julia versions/REBUILD_S01/run_step01.jl versions/REBUILD_S01 step01-results
+          mkdir -p singlefile-only
+          cp versions/REBUILD_S01/revcs_step01_integrated.jl singlefile-only/
+          julia --depwarn=error singlefile-only/revcs_step01_integrated.jl 2>&1 | tee step01-results/singlefile.log
+          julia --depwarn=error -e 'include(ARGS[1])' singlefile-only/revcs_step01_integrated.jl 2>&1 | tee step01-results/singlefile_include.log
       - name: Upload step results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: REBUILD-S01-results-${{ matrix.os }}-julia-${{ matrix.julia }}-${{ github.sha }}
-          path: step01-results/
+          path: |
+            step01-results/
+            singlefile-only/results_S01/
           if-no-files-found: error
           retention-days: 90

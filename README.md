@@ -2,6 +2,16 @@
 
 کد برنامه‌ریزی ایستگاه‌های شارژ برای شبکهٔ ۳۳ باس برق و ۱۲ گرهٔ حمل‌ونقل.
 
+## اجرای ساده با یک فایل
+
+فقط [revcs_step01_integrated.jl](versions/REBUILD_S01/revcs_step01_integrated.jl) را دریافت و اجرا کنید؛ پوشهٔ داده یا آزمون همراه لازم نیست. [ZIP شامل فقط همین یک فایل](versions/REBUILD_S01/REVCS_S01_SINGLEFILE.zip).
+
+```powershell
+julia revcs_step01_integrated.jl
+```
+
+خروجی در results_S01 کنار فایل ساخته می‌شود. این گام بررسی داده است و هنوز حل بهینه‌سازی نیست.
+
 ## بازنویسی مرحله‌به‌مرحله — S01
 
 - [راهنمای گام اول](versions/REBUILD_S01/README_FA.md)

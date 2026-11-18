@@ -9,3 +9,5 @@
 - Keep the downloadable ZIP and SHA256SUMS consistent. Preserve the CI workflow that builds a source ZIP and publishes test logs.
 - Never manufacture paper data or report synthetic unit-test values as paper results. Explicitly retain unresolved model assumptions.
 - Code and reports are public in this repository. Do not add credentials, account data, or unrelated user files.
+
+- Deliver a single self-contained .jl runtime file for every future step. Bundle sourced data in a clearly separated section of that file; do not require separate data/test files for the user to run it. Keep development tools and provenance in Git.
