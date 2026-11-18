@@ -1,0 +1,61 @@
+{
+  "source_sha256": "03200963774b72792b1eac302e165e5da34724dcfa989d93a8b4b055b8af6761",
+  "checks": [
+    {
+      "array": "wt_pu_days",
+      "table": 3,
+      "cells": 96,
+      "match": true
+    },
+    {
+      "array": "pv_pu_days",
+      "table": 5,
+      "cells": 96,
+      "match": true
+    },
+    {
+      "array": "Df_initial",
+      "table": 2,
+      "cells": 216,
+      "match": true
+    },
+    {
+      "array": "Load_P_days",
+      "table": 8,
+      "cells": 96,
+      "match": true
+    },
+    {
+      "array": "PDN_lines_data",
+      "table": 11,
+      "cells": 185,
+      "match": true
+    },
+    {
+      "array": "phi_b",
+      "table": 1,
+      "cells": 20,
+      "match": true
+    },
+    {
+      "array": "h0_b",
+      "table": 1,
+      "cells": 20,
+      "match": true
+    },
+    {
+      "array": "wt_capacities",
+      "table": 4,
+      "cells": 5,
+      "match": true
+    },
+    {
+      "array": "pv_pdn_capacities",
+      "table": 6,
+      "cells": 5,
+      "match": true
+    }
+  ],
+  "total_cells": 739,
+  "solver_run": false
+}
