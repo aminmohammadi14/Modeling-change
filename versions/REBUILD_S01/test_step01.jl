@@ -31,6 +31,10 @@ using .REVCSDataStep01
             write(io,"\n# intentional corruption test\n")
         end
         @test_throws ArgumentError load_case(dir)
+        # بدون GC اجباری، حذف فوری باید ممکن باشد؛ ویندوز فایل باز را قفل می‌کند.
+        checksum = joinpath(dir,"data","SHA256SUMS.txt")
+        rm(checksum)
+        @test !isfile(checksum)
     end
     mktempdir() do dir
         report=REVCSDataStep01.run(@__DIR__,dir)

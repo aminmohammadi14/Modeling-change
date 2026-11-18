@@ -10,11 +10,14 @@ end
 
 # اثر انگشت فایل‌های داده، تغییر ناخواستهٔ ورودی پس از استخراج را آشکار می‌کند.
 function verify_checksums(root)
-    for line in eachline(joinpath(root, "data", "SHA256SUMS.txt"))
-        isempty(strip(line)) && continue
-        expected, relative = split(line; limit=2)
-        actual = bytes2hex(sha256(read(joinpath(root, strip(relative)))))
-        demand(actual == expected, "اثر انگشت داده متفاوت است: $relative")
+    # حتی هنگام پرتاب خطا، فایل حتماً بسته می‌شود تا ویندوز بتواند آن را حذف کند.
+    open(joinpath(root, "data", "SHA256SUMS.txt"), "r") do io
+        for line in eachline(io)
+            isempty(strip(line)) && continue
+            expected, relative = split(line; limit=2)
+            actual = bytes2hex(sha256(read(joinpath(root, strip(relative)))))
+            demand(actual == expected, "اثر انگشت داده متفاوت است: $relative")
+        end
     end
 end
 

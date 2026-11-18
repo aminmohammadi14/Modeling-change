@@ -79,7 +79,11 @@ jobs:
           retention-days: 90
 
   rebuild-step01:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
@@ -87,6 +91,7 @@ jobs:
         with:
           version: '1.10.10'
       - name: Verify step package checksums
+        shell: bash
         working-directory: versions/REBUILD_S01
         run: sha256sum -c SHA256SUMS.txt
       - name: Validate source data and build input figures
@@ -100,7 +105,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: REBUILD-S01-results-${{ github.sha }}
+          name: REBUILD-S01-results-${{ matrix.os }}-${{ github.sha }}
           path: step01-results/
           if-no-files-found: error
           retention-days: 90
