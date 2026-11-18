@@ -1,11 +1,13 @@
 # تست‌های این فایل، کنترل نرم‌افزار و انتقال داده‌اند؛ نتیجهٔ مقاله محسوب نمی‌شوند.
 using Test, TOML, SHA
-include("run_step01.jl")
-using .REVCSDataStep01
+# هر بار آزمون در فضای نام تازه اجرا می‌شود؛ ماژول و نام‌های نشست کاربر تغییر نمی‌کنند.
+let scope = Module(gensym(:REVCSDataTests))
+    Base.include(scope, joinpath(@__DIR__, "run_step01.jl"))
+    model = getfield(scope, :REVCSDataStep01)
 
 @testset "S01: source data and time indexing" begin
-    b=load_case()
-    p=profiles(b)
+    b=model.load_case()
+    p=model.profiles(b)
     @test length(p.wind) == length(p.solar) == length(p.load) == 96
     @test size(p.traffic) == (96,9)
     # نقاط شاهد از جدول‌های چاپ‌شده: ابتدا، مرز روز، انتها و سطر ادامهٔ صفحهٔ بعد.
@@ -23,26 +25,28 @@ using .REVCSDataStep01
     @test b.data["table11"]["rows"][end] == [25,29,0.5,0.5,2776.44]
     @test length(b.data["table11"]["rows"]) - b.case["scope"]["buses"] + 1 == 5
     @test b.data["table9"]["rows"][1][4:end] == ["/","/","/"]
-    @test_throws ArgumentError require_optimization_ready(b)
+    @test_throws ArgumentError model.require_optimization_ready(b)
     # خرابی مصنوعی فقط در پوشهٔ موقت برای اطمینان از توقف روی ورودی تغییرکرده است.
     mktempdir() do dir
         cp(joinpath(@__DIR__,"data"),joinpath(dir,"data"))
         open(joinpath(dir,"data","tables.toml"),"a") do io
             write(io,"\n# intentional corruption test\n")
         end
-        @test_throws ArgumentError load_case(dir)
+        @test_throws ArgumentError model.load_case(dir)
         # بدون GC اجباری، حذف فوری باید ممکن باشد؛ ویندوز فایل باز را قفل می‌کند.
         checksum = joinpath(dir,"data","SHA256SUMS.txt")
         rm(checksum)
         @test !isfile(checksum)
     end
     mktempdir() do dir
-        report=REVCSDataStep01.run(@__DIR__,dir)
+        report=model.run(@__DIR__,dir)
         @test report["optimization_run"] === false
         @test report["paper_results_reproduced"] === false
         @test sort(readdir(dir)) == ["load.svg","solar.svg","traffic.svg","validation.toml","wind.svg"]
     end
     # حذف یال و شکستن اتصال، آزمون مستقل کنترل گراف است و دادهٔ مسئله را تغییر نمی‌دهد.
     lines=b.data["table11"]["rows"]
-    @test !REVCSDataStep01.connected([r for r in lines if !(1 in r[1:2])],33)
+    @test !model.connected([r for r in lines if !(1 in r[1:2])],33)
 end
+
+end # پایان فضای مستقل آزمون؛ هیچ تابعی به Main صادر نمی‌شود.
