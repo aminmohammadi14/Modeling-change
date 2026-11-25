@@ -1,0 +1,20 @@
+ACTIVE_MASTER  active=[1, 2] full=2 vars=10 rows=32 build_seconds=3.099437952041626 peak_rss_bytes=547409920
+RELAXATION  status=OPTIMAL solver_ub=1.0 rational_upper=nothing
+START  submitted=true solver_acceptance=UNVERIFIED
+FARKAS_RESULT  status=OPTIMAL bound=1.0 eta=1.0 peak_rss_bytes=574447616
+ACTIVE_MASTER  active=[1, 2] full=2 vars=10 rows=32 build_seconds=0.010692834854125977 peak_rss_bytes=576020480
+RELAXATION  status=OPTIMAL solver_ub=0.5 rational_upper=nothing
+START  submitted=true solver_acceptance=UNVERIFIED
+FARKAS_RESULT  status=OPTIMAL bound=-0.0 eta=-0.0 peak_rss_bytes=576151552
+Test Summary:                        | Pass  Total   Time
+multi-column separation and coverage |    3      3  14.5s
+PRICE_FIXED  column=1  status=OPTIMAL  lower=2.0  upper=2.0
+PRICE_FIXED  column=2  status=OPTIMAL  lower=3.0  upper=3.0
+PRICE_RESULT  status=OPTIMAL  pool_lb=2.0  incumbent=1.0  lower=1.0  improved=true
+PRICE_REPLAY  status=OPTIMAL  upper=1.0  accepted=true
+PRICE_FIXED  column=1  status=OPTIMAL  lower=2.0  upper=2.0
+PRICE_FIXED  column=2  status=OPTIMAL  lower=3.0  upper=3.0
+PRICE_FIXED  column=3  status=OPTIMAL  lower=1.0  upper=1.0
+PRICE_RESULT  status=OPTIMAL  pool_lb=1.0  incumbent=1.0  lower=1.0  improved=false
+Test Summary:                                       | Pass  Total  Time
+verified improvement against all saved column costs |    3      3  4.3s

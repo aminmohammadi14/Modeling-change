@@ -19,9 +19,9 @@ const C=F.Core20
             @objective(m,Min,y)
         end
         p(x,y)=C.IntegerPattern([1,2],[x,y])
-        gate,u=F.separate20(o,[p(0,0),p(0,1)],fac,block)
-        @test gate==:witness && u===witness
-        gate,u=F.separate20(o,[p(0,1),p(1,0)],fac,block)
+        gate,u=F.separate21(o,[p(0,0),p(0,1)],fac,block)
+        @test gate==:candidate && u===witness
+        gate,u=F.separate21(o,[p(0,1),p(1,0)],fac,block)
         @test gate==:covered && u===nothing
         @test C.farkas_gate(F.MOI.TIME_LIMIT,false,NaN,Inf)==:unresolved
     end

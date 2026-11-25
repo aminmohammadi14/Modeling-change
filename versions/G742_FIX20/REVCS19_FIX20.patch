@@ -1,0 +1,1039 @@
+--- FIX20_119dd9a/REVCS19_FIX20.jl
++++ revised/REVCS19_FIX20.jl
+@@ -7424,7 +7424,7 @@
+     main()
+ end
+ """)
+-    resource20("driver.jl","3501c82ff273d95f1704f3d2fba8a812c46acb933237478c1169abe7d35a5d4c","""# REVCS19 Gate 7.4.2 FIX9 -- exact sign-aware Farkas normalization audit (non-certifying).
++    resource20("driver.jl","1a2ab4e8f07ab8238fd0605e5cdd19ff62b503d9a2976fa5c0cfb37f266e9e46","""# REVCS19 Gate 7.4.2 FIX9 -- exact sign-aware Farkas normalization audit (non-certifying).
+ # Frozen 96h physical model source is included without modifications.
+ using SHA
+ using JuMP
+@@ -8198,8 +8198,8 @@
+             \"ROOT_GLOBAL_UPPER_BOUND_CERTIFIED\"=>\"NO\"])
+         return 0
+     end
+-    g742_solver_check()
+     if o.mode==\"solver-check\"
++        g742_solver_check()
+         g742_write_status(o.output,[\"GATE_7_4_2_STATUS\"=>\"SCIP_SMOKE_PASS_ORACLE_NOT_RUN\",
+             \"FULL_PHI3_ORACLE_CERTIFIED\"=>\"NO\",\"FULL_PHI2_PHI3_POLICY_CERTIFIED\"=>\"NO\"])
+         return 0
+@@ -8210,7 +8210,7 @@
+     start=time()
+     r=fix20_continue(o,cfg,grids,st,z0,state_sha,scope,domain)
+     elapsed=time()-start
+-    r.bound_role==:exact && r.scope==scope || error(\"Oracle bound role/scope mismatch\")
++    r.bound_role==:numerical && r.scope==scope || error(\"Oracle bound role/scope mismatch\")
+     write_rows(joinpath(o.output,\"NATIVE_SOLVER_TRACE.csv\"),REVCSCertifiedCore.SOLVER_TRACE)
+     write_rows(joinpath(o.output,\"NATIVE_ITERATIONS.csv\"),
+         [(;iteration=hasproperty(x,:iteration) ? x.iteration : 0,
+@@ -8226,7 +8226,7 @@
+     stress=g742_csvone(joinpath(G742_ROOT,\"reference\",o.branch,\"stress_SUMMARY.csv\"))
+     known_lb=parse(Float64,stress[\"lower_bound\"])
+     isnan(known_lb) && error(\"Invalid reference stress lower bound\")
+-    bound_consistent=!isfinite(r.upper) || r.upper+o.tol*max(1.0,abs(r.upper),abs(known_lb))>=known_lb
++    bound_consistent=isfinite(r.upper) && r.upper>=known_lb
+     bounds_ordered=!((isfinite(r.lower) && isfinite(r.upper)) &&
+         r.lower>r.upper+o.tol*max(1.0,abs(r.lower),abs(r.upper)))
+     scenario_valid=false
+@@ -8242,20 +8242,20 @@
+     r.infeasible && r.converged && error(\"Contradictory oracle statuses\")
+     certified_finite=r.converged && r.reason==:gap && !r.infeasible &&
+         isfinite(r.lower) && isfinite(r.upper) &&
+-        REVCSCertifiedCore.gap_closed(r.lower,r.upper,o.gap) &&
+-        bound_consistent && bounds_ordered && scenario_valid &&
++        checkedgap(r.lower,r.upper,o.gap) &&
++        bounds_ordered && scenario_valid &&
+         witness_status==\"OPTIMAL_AUDITED\" &&
+         witness_lb>=r.lower-o.tol*max(1.0,abs(r.lower),abs(witness_lb)) &&
+         witness_lb<=r.upper+o.tol*max(1.0,abs(r.upper),abs(witness_lb))
+     certified_infeasible=r.infeasible && r.reason==:robust_infeasible &&
+         scenario_valid && witness_status==\"INFEASIBLE_REPRODUCED\"
+-    status=certified_finite ? \"CERTIFIED_FULL_PHI3_WITHIN_GAP\" :
++    status=certified_finite ? \"NUMERICALLY_CERTIFIED_WITHIN_GAP\" :
+         certified_infeasible ? \"CERTIFIED_INFEASIBLE_FIXED_PREDECESSOR_FULL_PHI3\" :
+         \"UNRESOLVED_FULL_PHI3_ORACLE\"
+     write_rows(joinpath(o.output,\"ORACLE_SUMMARY.csv\"),[(;
+         branch=o.branch,status,mode=o.mode,source_sha256=MODEL_SOURCE_HASH,
+         predecessor_sha256=state_sha,cost_scope=scope,domain_cardinality=string(domain.cardinality),
+-        lower_bound=r.lower,upper_bound=r.upper,baseline_stress_validated_lower_bound=known_lb,
++        lower_bound=r.lower,upper_bound=r.upper,stress_reference_status=\"UNVERIFIED\",stress_included_as_reference=false,baseline_stress_reported_lower_bound=known_lb,
+         known_stress_bound_respected=bound_consistent,oracle_bounds_ordered=bounds_ordered,
+         converged=r.converged,infeasible=r.infeasible,reason=string(r.reason),
+         columns=length(r.columns),iterations=length(r.history),
+@@ -8316,6 +8316,12 @@
+ 36	0
+ 37	0
+ """)
++    resource20("checkpoint/legacy_pricing_trace.csv","796423cfbb4bacdb7b917afb92080f83a7afac1d9b2bcedcb2c13d3daf8fd101","""context,sense,termination,primal,variables,constraints,seconds,allocated_bytes,gc_seconds,incumbent,bound
++\"price_fixed_column\",\"MIN_SENSE\",\"INFEASIBLE\",\"NO_SOLUTION\",\"75481\",\"153238\",\"51.049144016\",\"129349292\",\"0.032738499\",\"NaN\",\"0.0\"
++\"price_fixed_column\",\"MIN_SENSE\",\"OPTIMAL\",\"FEASIBLE_POINT\",\"75481\",\"153238\",\"3.188235814\",\"118576576\",\"0.051790013\",\"1.72337081138961e6\",\"1.7233708113743616e6\"
++\"price_unrestricted_physical_cost\",\"MIN_SENSE\",\"TIME_LIMIT\",\"FEASIBLE_POINT\",\"75481\",\"153238\",\"96.611727872\",\"124295456\",\"0.029561031\",\"1.7041049483309772e6\",\"1.682535613777655e6\"
++\"verify_priced_column_lp\",\"MIN_SENSE\",\"OPTIMAL\",\"FEASIBLE_POINT\",\"75481\",\"153238\",\"2.470869445\",\"118567808\",\"0.026542694\",\"1.704104948319438e6\",\"1.7041049483036813e6\"
++""")
+     resource20("checkpoint/FIX17_COLUMN_PATTERN.tsv","cbc93a9cad9074973a726e41e0ea754b9404f3561909dd1f3c771a5a05945be2","""variable_index	value
+ 1	1
+ 2	0
+@@ -25847,6 +25853,9 @@
+ const Core20 = REVCSCertifiedCore
+ 
+ function event20(o, step, detail)
++    if !isempty(Core20.SOLVER_TRACE)
++        write_rows(joinpath(o.output,"NATIVE_SOLVER_TRACE.csv"),Core20.SOLVER_TRACE)
++    end
+     open(joinpath(o.output,"PROGRESS.tsv"),"a") do io
+         println(io, step, '\t', detail)
+     end
+@@ -25863,6 +25872,9 @@
+         i,k = parse.(Int,split(line,'\t'))
+         i == index(v).value || error("Column layout differs from the stage model")
+         is_binary(v) && !(k in (0,1)) && error("Invalid binary decision")
++        is_fixed(v) && fix_value(v)!=k && error("Column violates fixed value")
++        has_lower_bound(v) && k<lower_bound(v) && error("Column below lower bound")
++        has_upper_bound(v) && k>upper_bound(v) && error("Column above upper bound")
+         push!(vals,k)
+     end
+     return Core20.IntegerPattern([index(v).value for v in vars], vals)
+@@ -25915,6 +25927,12 @@
+     lower = parse(Float64,info["next_inner_lower_bound"])
+     info["next_inner_feasible"]=="true" && info["initial_inner_feasible"]=="true" &&
+         isfinite(lower) && lower <= parse(Float64,info["next_inner_incumbent"]) || error("Invalid archived replay")
++    recovered=startledger(o,vars,scope,state_sha,domain,witness,info)
++    if recovered!==nothing
++        restored,_,_=recovered
++        all(colid(restored[i])==colid(columns[i]) for i in 1:2) || error("Resume seeds differ")
++        return recovered
++    end
+     if FIX20_RESUME[] !== nothing
+         # فایل نمایه بعد از اتمام نوشتن ستون منتشر می‌شود. ستون نیمه‌نوشته وارد مستر نمی‌شود.
+         dir = FIX20_RESUME[]
+@@ -25934,28 +25952,282 @@
+             end
+         end
+         length(manifest) >= 3 || error("Incomplete resume pool")
++        pricing=migratepricing(dir,scope,state_sha)
++        if pricing!==nothing
++            witness,e=pricing
++            ledger["lb"]=e;lower=validate_lb(e,witness)
++            ledger["iteration"]=1
++            event20(o,"MIGRATION","validated unrestricted pricing bound=$lower")
++        else
++            event20(o,"MIGRATION","legacy pricing evidence missing or not authenticated")
++        end
++        ledger["phase"]=length(columns)>2 ? "screen" : "pricing"
+     end
+     event20(o,"CHECKPOINT_VALIDATED","columns=$(length(columns))  integer_variables=$(length(vars))  stage=3")
+     return columns,witness,lower
+ end
+ 
+-function save_pool20(o, columns, state_sha, scope)
+-    dir = o.output
+-    open(joinpath(dir,"POOL.tsv.tmp"),"w") do io
+-        println(io, join((MODEL_SOURCE_HASH,state_sha,scope),'\t'))
+-        for (i,p) in enumerate(columns)
+-            name = "column_$i.tsv"
+-            file = joinpath(dir,name)
+-            if !isfile(file)
+-                g742_fix17_write_pattern(file*".tmp",p)
+-                mv(file*".tmp",file)
+-            end
+-            println(io,name,'\t',bytes2hex(sha256(read(file))))
++using TOML, UUIDs
++const wrapper_digest = bytes2hex(sha256(read(@__FILE__)))
++digestfile(p)=bytes2hex(sha256(read(p)))
++udigest(u)=bytes2hex(sha256(g742_fix15_numeric_bytes(u)))
++const ledger=Dict{String,Any}()
++const wall_end=Ref(Inf)
++remaining(o)=min(o.seconds,max(0.0,wall_end[]-time()))
++function budget(o)
++    t=remaining(o)
++    t>0 || throw(BudgetEnd())
++    return t
++end
++struct BudgetEnd <: Exception end
++
++function atomicfile(writefn,path)
++    tmp,io=mktemp(dirname(path))
++    try
++        writefn(io)
++        flush(io)
++        close(io)
++        Base.Filesystem.rename(tmp,path)
++    finally
++        isopen(io) && close(io)
++        isfile(tmp) && rm(tmp)
++    end
++end
++
++function tablefile(path,d)
++    atomicfile(path) do io
++        TOML.print(io,d;sorted=true)
++    end
++end
++
++function layout(vars)
++    io=IOBuffer()
++    for v in vars
++        println(io,index(v).value,'\t',name(v),'\t',is_binary(v),'\t',is_integer(v),'\t',
++          is_fixed(v) ? repr(fix_value(v)) : "free",'\t',
++          has_lower_bound(v) ? repr(lower_bound(v)) : "-Inf",'\t',
++          has_upper_bound(v) ? repr(upper_bound(v)) : "+Inf")
++    end
++    return bytes2hex(sha256(take!(io)))
++end
++
++function columnbytes(p)
++    io=IOBuffer()
++    println(io,"variable_index\tvalue")
++    for (i,v) in zip(p.indices,p.values)
++        println(io,i,'\t',v)
++    end
++    return take!(io)
++end
++colid(p)=bytes2hex(sha256(columnbytes(p)))
++function snapshotscenario(dir,file,u)
++    tmp=joinpath(dir,file*".tmp")
++    g742_fix17_write_scenario_snapshot(tmp,u)
++    mv(tmp,joinpath(dir,file))
++    return digestfile(joinpath(dir,file))
++end
++
++# سند کران پایین باید به تابع هدف فیزیکی و سناریوی مشخص تعلق داشته باشد.
++function validate_lb(e,u)
++    e["context"] in ("archived_unrestricted","price_unrestricted_physical_cost","inner_physical_cost") ||
++        error("Invalid lower bound source")
++    e["sense"]=="MIN_SENSE" && e["status"] in ("TIME_LIMIT","OPTIMAL") || error("Invalid bound status")
++    e["scenario"]==udigest(u) || error("Lower bound witness mismatch")
++    l=e["bound"]; h=e["incumbent"]=="+Inf" ? Inf : e["incumbent"]
++    isfinite(l) && !isnan(h) && l<=h || error("Invalid lower bound evidence")
++    return l
++end
++function evidence(context,u,st,lo,hi)
++    Dict("context"=>context,"sense"=>"MIN_SENSE","scenario"=>udigest(u),
++        "status"=>string(st),"bound"=>lo,"incumbent"=>isfinite(hi) ? hi : "+Inf")
++end
++
++function commitstate(o,cols,best;candidate=nothing)
++    # ابتدا نسل کامل ساخته می‌شود. تعویض اتمی اشاره‌گر آخرین عملیات است.
++    dir=mktempdir(o.output;prefix=".pending-",cleanup=false)
++    id=string(uuid4())
++    d=copy(ledger)
++    d["generation"]=id
++    d["columns"]=[colid(p) for p in cols]
++    d["pool_digest"]=bytes2hex(sha256(join(d["columns"],"\n")))
++    d["witness_file"]=snapshotscenario(dir,"witness.tsv",best)
++    d["candidate_file"]=candidate===nothing ? "" : snapshotscenario(dir,"candidate.tsv",candidate)
++    for (i,p) in enumerate(cols)
++        file=joinpath(dir,"column_$i.tsv")
++        write(file,columnbytes(p))
++        digestfile(file)==d["columns"][i] || error("Column write failed")
++    end
++    if haskey(d,"upper_proof")
++        proof=d["upper_proof"]
++        write(joinpath(dir,"upper_witness.tsv"),proof["snapshot"])
++        digestfile(joinpath(dir,"upper_witness.tsv"))==proof["snapshot_hash"] || error("Cost witness changed")
++    end
++    if !isempty(Core20.SOLVER_TRACE)
++        write_rows(joinpath(dir,"trace.csv"),Core20.SOLVER_TRACE)
++        write_rows(joinpath(o.output,"NATIVE_SOLVER_TRACE.csv"),Core20.SOLVER_TRACE)
++    end
++    d["trace_digest"]=isfile(joinpath(dir,"trace.csv")) ? digestfile(joinpath(dir,"trace.csv")) : ""
++    validate_lb(d["lb"],best)
++    tablefile(joinpath(dir,"state.toml"),d)
++    key=digestfile(joinpath(dir,"state.toml"))
++    mv(dir,joinpath(o.output,id))
++    head=joinpath(o.output,"CURRENT")
++    if isfile(head)
++        atomicfile(io->write(io,read(head)),joinpath(o.output,"PREVIOUS"))
++    end
++    atomicfile(io->println(io,id,' ',key),head)
++end
++
++function readgeneration(dir,header,ident,vars)
++    id,h=split(strip(read(joinpath(dir,header),String)))
++    string(UUID(id))==id || error("Invalid generation id")
++    path=joinpath(dir,id)
++    digestfile(joinpath(path,"state.toml"))==h || error("Invalid generation checksum")
++    d=TOML.parsefile(joinpath(path,"state.toml"))
++    d["generation"]==id && d["identity"]==ident || error("Checkpoint problem identity differs")
++    d["iteration"] isa Int && d["iteration"]>=0 || error("Invalid iteration")
++    d["phase"] in ("pricing","screen","inner","cost") || error("Invalid checkpoint phase")
++
++    digests=d["columns"]
++    length(digests)>=2 && allunique(digests) && bytes2hex(sha256(join(digests,"\n")))==d["pool_digest"] ||
++        error("Invalid pool digest")
++    if d["phase"]=="cost" || d["upper"]!="+Inf"
++        proof=d["phase"]=="cost" ? d["coverage"] : d["upper_proof"]["coverage_evidence"]
++        proof["kind"] in ("root_rational","leaf_rational") && proof["upper"]=="0" &&
++          !isempty(proof["active"]) && issubset(proof["active"],digests) || error("Missing coverage evidence")
++    end
++    if d["upper"]!="+Inf"
++        proof=d["upper_proof"]
++        proof["snapshot_hash"]==digestfile(joinpath(path,"upper_witness.tsv")) &&
++            udigest(witness20(joinpath(path,"upper_witness.tsv")))==proof["scenario"] || error("Cost witness mismatch")
++        isfinite(d["upper"]) && proof["bound"]==d["upper"] && proof["sense"]=="MAX_SENSE" &&
++            proof["status"] in ("OPTIMAL","TIME_LIMIT") && proof["coverage"]=="rational_cover" &&
++            proof["covered_pool"]==proof["pool"] && issubset(proof["pool"],digests) &&
++            !isempty(proof["pool"]) && proof["incumbent"]<=proof["bound"] &&
++            0<=proof["residual"]<=proof["tolerance"] && d["lb"]["bound"]<=proof["bound"] ||
++            error("Invalid retained cost proof")
++    end
++    cols=map(enumerate(digests)) do (i,h)
++        file=joinpath(path,"column_$i.tsv")
++        digestfile(file)==h || error("Damaged resume column")
++        read_pattern20(file,vars)
++    end
++    function loadscenario(file,h)
++        p=joinpath(path,file)
++        digestfile(p)==h || error("Scenario snapshot corrupted")
++        witness20(p)
++    end
++    u=loadscenario("witness.tsv",d["witness_file"])
++    candidate=isempty(d["candidate_file"]) ? nothing : loadscenario("candidate.tsv",d["candidate_file"])
++    (d["phase"]=="inner")==(!isnothing(candidate)) || error("Candidate phase mismatch")
++    tr=d["trace_digest"]
++    isempty(tr) || digestfile(joinpath(path,"trace.csv"))==tr || error("Trace checksum mismatch")
++    e=d["lb"]
++    validate_lb(e,u)
++    if haskey(e,"solver_record")
++        t=e["solver_record"]
++        all(k->t[k]==e[k],("context","sense","status","bound","incumbent")) || error("Bound evidence mismatch")
++    elseif e["context"]=="archived_unrestricted"
++        info=g742_csvone(joinpath(G742_ROOT,"checkpoint","FIX17_NATIVE_PRODUCTION.csv"))
++        e["bound"]==parse(Float64,info["next_inner_lower_bound"]) && e["scenario"]==info["extracted_scenario_sha256"] ||
++            error("Archived seed proof mismatch")
++    else
++        t=g742_csv_records(read(joinpath(G742_ROOT,"checkpoint","legacy_pricing_trace.csv")))
++        r=only(Dict(zip(first(t),x)) for x in t[2:end] if first(x)=="price_unrestricted_physical_cost")
++        e["bound"]==parse(Float64,r["bound"]) && udigest(u)==udigest(first(candidates20())) ||
++            error("Pricing proof missing")
++    end
++    for (key,r) in d["cache"]
++        occursin(r"^[a-f0-9]{64}:[a-f0-9]{64}$",key) && last(split(key,':')) in digests || error("Invalid cached scope")
++        r["status"] in ("unknown","feasible","excluded") || error("Invalid certificate kind")
++    end
++    return d,cols,u,candidate
++end
++
++function restoredir(dir,ident,vars)
++    try
++        return readgeneration(dir,"CURRENT",ident,vars)
++    catch err
++        isfile(joinpath(dir,"PREVIOUS")) || rethrow()
++        @warn "Current checkpoint rejected; validating previous generation" exception=err
++        return readgeneration(dir,"PREVIOUS",ident,vars)
++    end
++end
++
++const pending=Ref{Any}(nothing)
++const solver_tol=Ref(1e-8)
++const certificate_tol=Ref(1e-7)
++function coordinates21()
++    coords=String[]
++    theta_err[3]>0 && push!(coords,"theta")
++    zeta_err[3]>0 && push!(coords,"zeta")
++    for (tag,rows,profile,r) in (("wind",WT_set,wt_profile,xi_wt_err_ratio),
++                                ("pv",PV_PDN_set,pv_profile,zeta_pv_err_ratio),
++                                ("station",1:num_roads,pv_profile,zeta_pv_err_ratio))
++        for i in rows,h in Tau_set
++            profile[h]*r>0 && push!(coords,"$tag:$i:$h")
+         end
+     end
+-    Base.Filesystem.rename(joinpath(dir,"POOL.tsv.tmp"),joinpath(dir,"POOL.tsv"))
++    return bytes2hex(sha256(join(coords,"+-\n")))
++end
++function startledger(o,vars,scope,state_sha,domain,witness,info)
++    resume=FIX20_RESUME[]
++    ident=Dict("schema"=>2,"stage"=>3,"branch"=>o.branch,"scope"=>scope,"model"=>MODEL_SOURCE_HASH,
++        "algorithm"=>wrapper_digest,"predecessor"=>state_sha,"grid"=>[100,20,30],"coordinate_order"=>coordinates21(),
++        "solver_tol"=>solver_tol[],"certificate_tol"=>certificate_tol[],"audit_tol"=>o.tol,
++        "topology"=>digestfile(G742_TOPOLOGY),"domain"=>string(domain.cardinality),
++        "transform"=>string(MODEL_SOURCE_HASH,":symbolic_uncertainty/3:",domain.scope),"layout"=>layout(vars))
++    empty!(ledger); pending[]=nothing
++    merge!(ledger,Dict("identity"=>ident,"run"=>string(uuid4()),"parent"=>"","iteration"=>0,
++      "phase"=>"pricing","cache"=>Dict{String,Any}(),"active"=>[1],"upper"=>"+Inf","journal"=>Any[],
++      "lb"=>evidence("archived_unrestricted",witness,info["next_inner_termination"],
++          parse(Float64,info["next_inner_lower_bound"]),parse(Float64,info["next_inner_incumbent"]))))
++    if !isnothing(resume) && (isfile(joinpath(resume,"CURRENT")) || isfile(joinpath(resume,"PREVIOUS")))
++        d,cols,u,candidate=restoredir(resume,ident,vars)
++        merge!(ledger,d)
++        ledger["parent"]=d["generation"];ledger["run"]=string(uuid4());pending[]=candidate
++        return cols,u,validate_lb(d["lb"],u)
++    end
++    return nothing
++end
++
++function migratepricing(dir,scope,sha)
++    # هویت گزارش، ردگیری بومی و تمام مؤلفه‌های سناریو از بستهٔ تثبیت‌شده کنترل می‌شود.
++    files=("ORACLE_SUMMARY.csv","NATIVE_SOLVER_TRACE.csv","pricing_scenario.tsv")
++    hs=("506b691fc2b86200fdf1ee4c161ccc388951bc520566446b0576c3e6753d80a3",
++        "796423cfbb4bacdb7b917afb92080f83a7afac1d9b2bcedcb2c13d3daf8fd101",
++        "8a79343a2551f3247c70532e3218ec5a3adc2716ac91be49aa3a379b18a619da")
++    all(isfile(joinpath(dir,f)) && digestfile(joinpath(dir,f))==h for (f,h) in zip(files,hs)) || return nothing
++    r=g742_csvone(joinpath(dir,files[1]))
++    (r["cost_scope"],r["predecessor_sha256"],r["source_sha256"])==(scope,sha,MODEL_SOURCE_HASH) || error("Migration scope")
++    rows=g742_csv_records(read(joinpath(dir,files[2])))
++    t=only([Dict(zip(rows[1],x)) for x in rows[2:end] if first(x)=="price_unrestricted_physical_cost"])
++    u=witness20(joinpath(dir,files[3]))
++    udigest(u)==udigest(first(candidates20())) && t["sense"]=="MIN_SENSE" || error("Migration scenario or sense")
++    e=evidence(t["context"],u,t["termination"],parse(Float64,t["bound"]),parse(Float64,t["incumbent"]))
++    validate_lb(e,u)==parse(Float64,r["lower_bound"]) || error("Migration bound mismatch")
++    return u,e
+ end
+ 
++function safe_min(m)
++    st=termination_status(m)
++    st==MOI.INFEASIBLE && return (status=st,lower=Inf,upper=Inf,feasible=false)
++    st in (MOI.OPTIMAL,MOI.TIME_LIMIT) || return (status=st,lower=-Inf,upper=Inf,feasible=false)
++    row = Core20.min_bounds(m)
++    ok,_=feasible_audit(m,1e-5)
++    cost=ok ? objective_value(m) : Inf
++    ok=ok && isfinite(cost) && abs(value(objective_function(m))-cost)<=1e-5
++    lo=isfinite(row.lower) ? row.lower : -Inf
++    ok && lo>cost+1e-7 && error("Invalid minimization interval")
++    return (status=st,lower=lo,upper=ok ? cost : Inf,feasible=ok)
++end
++function remember_cost(context,row)
++    native=last(Core20.SOLVER_TRACE)
++    native.context==context || error("Unknown solver evidence")
++    isfinite(row.lower) && row.lower!=native.bound && error("Inconsistent bound record")
++    ledger["last_cost_record"]=Dict("context"=>context,"bound"=>row.lower,
++        "status"=>string(row.status),"incumbent"=>isfinite(row.upper) ? row.upper : "+Inf","sense"=>"MIN_SENSE")
++end
+ # انتخاب سناریو با استفاده از همان متغیرهای دودویی و پروفیل‌های فیزیکی مدل
+ function candidates20()
+     hi,_ = g742_fix13_realization("all-plus")
+@@ -25970,85 +26242,236 @@
+ end
+ 
+ # تک‌سناریو فقط هنگامی شاهد جداسازی است که LP هر ستون در همان سناریو ناممکن باشد.
+-function excluded20(builder,u,p,seconds)
+-    lp = builder(u)
+-    Core20.fix_pattern!(lp,p)
+-    @objective(lp,Min,0)
+-    set_time_limit_sec(lp,seconds)
+-    Core20.solve_tracked!(lp;context="fixed_column_feasibility_lp")
+-    return termination_status(lp)
++# برای دامنه‌های کوچک می‌توان تمام برگ‌های دودویی را پوشاند و کران هر LP را مستقل بررسی کرد.
++function leafcover(o,m,z)
++    length(z)<=6 || return false
++    undo=relax_integrality(m)
++    try
++        for ix in 0:((1<<length(z))-1)
++            vals=[(ix>>(j-1))&1 for j in eachindex(z)]
++            fixed=Dict(zip(z,vals))
++            invalid=false
++            for c in all_constraints(m;include_variable_in_set_constraints=false)
++                obj=constraint_object(c)
++                f=obj.func
++                f isa GenericAffExpr && all(v->haskey(fixed,v),keys(f.terms)) || continue
++                v=Rational{BigInt}(f.constant)+sum((Rational{BigInt}(k)*fixed[x] for (x,k) in f.terms);init=0)
++                s=obj.set
++                invalid=(s isa MOI.LessThan && v>s.upper)||(s isa MOI.GreaterThan && v<s.lower)||(s isa MOI.EqualTo && v!=s.value)
++                invalid && break
++            end
++            invalid && continue
++            eq=[@constraint(m,z[j]==vals[j]) for j in eachindex(z)]
++            try
++                set_time_limit_sec(m,budget(o));optimize!(m)
++                bound=termination_status(m)==MOI.OPTIMAL ? exact_lp_upper(m) : nothing
++                if termination_status(m)==MOI.OPTIMAL && !(bound!==nothing && bound<=0)
++                    bound=exact_lp_upper(m;reconstruct=true)
++                end
++                event20(o,"PARTITION_LEAF","leaf=$ix status=$(termination_status(m)) upper=$bound")
++                (bound!==nothing && bound<=0) || return false
++            finally
++                delete.(Ref(m),eq)
++            end
++        end
++        return true
++    finally
++        undo()
++    end
+ end
+-
+-function screen20(o,builder,columns,candidates,known_covered)
+-    for (j,u) in enumerate(candidates)
+-        j in known_covered && continue
+-        separated = true
+-        for (i,p) in enumerate(columns)
+-            status = excluded20(builder,u,p,o.seconds)
+-            event20(o,"SCREEN_LP","scenario=$(u["name"])  column=$i  status=$status")
+-            if status != MOI.INFEASIBLE
+-                status==MOI.OPTIMAL && push!(known_covered,j)
+-                separated = false
+-                break
++# کران بالای مستقل LP با حساب گویا برای مدل خطیِ نمایش‌یافته در JuMP.
++# ضریب‌های دوگان می‌توانند تقریبی باشند؛ باقیمانده با حدود واقعی متغیرها کران‌بندی می‌شود.
++function exact_lp_upper(m;reconstruct=false)
++    objective_sense(m)==MOI.MAX_SENSE && has_duals(m) || return nothing
++    q(x)=Rational{BigInt}(x)
++    vs=all_variables(m)
++    residual=Dict(v=>zero(Rational{BigInt}) for v in vs)
++    function accumulate(f,k)
++        if f isa VariableRef
++            residual[f]+=k
++            return zero(k)
++        elseif f isa GenericAffExpr
++            for (v,a) in f.terms
++                residual[v]+=k*q(a)
+             end
++            return k*q(f.constant)
+         end
+-        separated && return u
++        error("Unsupported relaxation expression")
+     end
+-    return nothing
++    b=accumulate(objective_function(m),q(1))
++    for c in all_constraints(m;include_variable_in_set_constraints=true)
++        y=-dual(c)
++        isfinite(y) || return nothing
++        iszero(y) && continue
++        f=constraint_object(c);s=f.set
++        rhs=if s isa MOI.LessThan && y>=0
++            s.upper
++        elseif s isa MOI.GreaterThan && y<=0
++            s.lower
++        elseif s isa MOI.EqualTo
++            s.value
++        elseif s isa MOI.Interval
++            y>=0 ? s.upper : s.lower
++        else
++            continue
++        end
++        isfinite(rhs) || continue
++        mult=reconstruct ? rationalize(BigInt,y;tol=1e-10) : q(y)
++        b+=mult*q(rhs)+accumulate(f.func,-mult)
++    end
++    for (v,k) in residual
++        iszero(k) && continue
++        bound=is_fixed(v) ? fix_value(v) : k>0 ? (has_upper_bound(v) ? upper_bound(v) : Inf) :
++            (has_lower_bound(v) ? lower_bound(v) : -Inf)
++        isfinite(bound) || return nothing
++        b+=k*q(bound)
++    end
++    return b
++end
++
++function feasible_audit(m,tol)
++    has_values(m) && primal_status(m)==MOI.FEASIBLE_POINT || return false,Inf
++    all(v->isfinite(value(v)),all_variables(m)) || return false,Inf
++    report=primal_feasibility_report(m;atol=0.0)
++    residual=maximum(values(report);init=0.0)
++    return isfinite(residual) && residual<=tol,residual
+ end
+ 
+-function separate20(o,columns,fac,block)
+-    a = Core20.farkas_audit_symbolic_master(columns,fac,block,HiGHS.Optimizer;
+-        seconds=o.seconds,threads=o.threads,sign_aware=true)
+-    m = a.model
+-    a.metrics["column_link_rows"]==length(columns) && a.metrics["variable_count_delta"]==0 &&
+-        a.metrics["constraint_count_delta"]==0 && get(a.metrics,"indicator_constraints",0)==0 ||
+-        error("Invalid multi-column Farkas construction")
+-    # در HiGHS 1.16 این حذف می‌تواند در پیش‌حل مستر بزرگ از مهلت عبور کند.
+-    # فقط قاعدهٔ مزبور غیرفعال می‌شود. قیود و سایر قواعد پیش‌حل همان مدل باقی می‌مانند.
+-    if isdefined(HiGHS,:kHighsPresolveRuleFourierMotzkin)
+-        mask=1 << HiGHS.kHighsPresolveRuleFourierMotzkin
+-        set_optimizer_attribute(m,"presolve_rule_off",mask)
+-        event20(o,"FARKAS_PRESOLVE","disabled=FourierMotzkin  mask=$mask")
++function audited_column(o,builder,u,p)
++    key=udigest(u)*":"*colid(p)
++    cache=ledger["cache"]
++    if haskey(cache,key)
++        r=cache[key]
++        if r["status"]=="feasible" && 0<=r["residual"]<=o.tol
++            return :feasible
++        elseif r["status"]=="excluded" && r["margin"]>o.tol && max(r["stationarity"],r["sign"])<=min(o.tol,1e-8)
++            return :excluded
++        end
+     end
+-    event20(o,"FARKAS_MODEL","columns=$(length(columns))  variables=$(num_variables(m))")
+-    Core20.solve_tracked!(m;context="multi_column_sign_aware_farkas")
+-    audit = Core20.farkas_audit_mip_incumbent(m;tol=1e-6)
+-    write_rows(joinpath(o.output,"FARKAS_LAST_AUDIT.csv"),[audit])
+-    st=termination_status(m)
+-    st==MOI.INFEASIBLE && error("Infeasible normalized Farkas master")
+-    ub=try objective_bound(m) catch; Inf end
+-    gate=Core20.farkas_gate(st,audit.independent_incumbent_validated,audit.incumbent_objective,ub)
+-    event20(o,"FARKAS_RESULT","status=$st  gate=$gate  bound=$ub")
+-    u=gate==:witness ? a.extract() : nothing
+-    u!==nothing && validate_scenario(3,u)
+-    return gate,u
++    m=builder(u)
++    Core20.fix_pattern!(m,p)
++    @objective(m,Min,0)
++    set_time_limit_sec(m,budget(o))
++    Core20.solve_tracked!(m;context="fixed_column_feasibility_lp")
++    ok,res=feasible_audit(m,o.tol)
++    entry=Dict{String,Any}("status"=>"unknown","termination"=>string(termination_status(m)))
++    if ok
++        merge!(entry,Dict("status"=>"feasible","residual"=>res))
++    elseif termination_status(m)==MOI.INFEASIBLE
++        ray=g742_fix14_ray_audit(m;tolerance=min(1e-8,o.tol))
++        entry["margin"]=isfinite(ray.normalized_farkas_margin) ? ray.normalized_farkas_margin : "unknown"
++        entry["ray_status"]=ray.status
++        if ray.certificate_numerically_validated && ray.normalized_farkas_margin>o.tol
++            merge!(entry,Dict("status"=>"excluded","margin"=>ray.normalized_farkas_margin,
++                "stationarity"=>ray.normalized_stationarity_residual,"sign"=>ray.normalized_sign_violation))
++        end
++    end
++    cache[key]=entry
++    event20(o,"COLUMN_REPLAY","$key $(entry)")
++    return Symbol(entry["status"])
++end
++
++function classify_pool(check,cols,u)
++    states=map(p->check(u,p),cols)
++    return all(==(:excluded),states) ? :witness : any(==(:feasible),states) ? :partial : :unknown,states
+ end
+ 
++function separate21(o,columns,fac,block;check=nothing,save=()->nothing)
++    active=check===nothing ? collect(eachindex(columns)) : copy(ledger["active"])
++    !isempty(active) && allunique(active) && all(i->i in eachindex(columns),active) || error("Invalid active subset")
++    while true
++        budget(o)
++        began=time()
++        a=Core20.farkas_audit_symbolic_master(columns[active],fac,block,HiGHS.Optimizer;
++            seconds=budget(o),threads=o.threads,sign_aware=true)
++        m=a.model
++        get(a.metrics,"column_link_rows",-1)==length(active) && a.metrics["variable_count_delta"]==0 &&
++            a.metrics["constraint_count_delta"]==0 && get(a.metrics,"indicator_constraints",0)==0 || error("Invalid master")
++        isdefined(HiGHS,:kHighsPresolveRuleFourierMotzkin) && set_optimizer_attribute(m,"presolve_rule_off",1<<HiGHS.kHighsPresolveRuleFourierMotzkin)
++        set_optimizer_attribute(m,"primal_feasibility_tolerance",solver_tol[])
++        set_optimizer_attribute(m,"dual_feasibility_tolerance",solver_tol[])
++        set_optimizer_attribute(m,"mip_feasibility_tolerance",solver_tol[])
++        write_rows(joinpath(o.output,"STRUCTURE_$(length(active)).csv"),[(;metric=k,value=v) for (k,v) in sort(collect(a.metrics);by=first)])
++        event20(o,"SOLVER_SETTINGS","threads=$(get_optimizer_attribute(m,"threads")) primal_tol=$(get_optimizer_attribute(m,"primal_feasibility_tolerance")) dual_tol=$(get_optimizer_attribute(m,"dual_feasibility_tolerance")) mip_tol=$(get_optimizer_attribute(m,"mip_feasibility_tolerance")) mask=$(get_optimizer_attribute(m,"presolve_rule_off"))")
++        event20(o,"ACTIVE_MASTER","active=$active full=$(length(columns)) vars=$(num_variables(m)) rows=$(a.metrics["model_constraints"]) build_seconds=$(time()-began) peak_rss_bytes=$(Sys.maxrss())")
++        undo=relax_integrality(m)
++        strict=false
++        try
++            set_time_limit_sec(m,budget(o))
++            Core20.solve_tracked!(m;context="active_farkas_root_relaxation")
++            ub=try objective_bound(m) catch; Inf end
++            proof=termination_status(m)==MOI.OPTIMAL && isfinite(ub) && ub<=1e-7 ? exact_lp_upper(m) : nothing
++            strict=proof!==nothing && proof<=0
++            event20(o,"RELAXATION","status=$(termination_status(m)) solver_ub=$ub rational_upper=$proof")
++        finally
++            undo()
++        end
++        if strict
++            ledger["coverage"]=Dict("active"=>colid.(columns[active]),"kind"=>"root_rational","upper"=>"0")
++            return :covered,nothing
++        end
++        warm=Core20.farkas_audit_start_zero!(m)
++        event20(o,"START","submitted=$(warm.start_submission_attempted) solver_acceptance=UNVERIFIED")
++        set_time_limit_sec(m,budget(o))
++        Core20.solve_tracked!(m;context="active_farkas_mip")
++        audit=Core20.farkas_audit_mip_incumbent(m;tol=certificate_tol[])
++        write_rows(joinpath(o.output,"FARKAS_LAST_AUDIT.csv"),[audit])
++        val=audit.incumbent_objective
++        ub=try objective_bound(m) catch; Inf end
++        st=termination_status(m)
++        ledger["ray_bound"]=isfinite(ub) ? ub : Inf
++        ledger["ray_incumbent"]=isfinite(val) ? val : -Inf
++        event20(o,"FARKAS_RESULT","status=$st bound=$ub eta=$val peak_rss_bytes=$(Sys.maxrss())")
++        if !((st in (MOI.OPTIMAL,MOI.TIME_LIMIT)) && audit.independent_incumbent_validated && isfinite(val) && val>certificate_tol[])
++            if st==MOI.OPTIMAL && isfinite(ub) && abs(ub)<=1e-7 && leafcover(o,m,a.z)
++                ledger["coverage"]=Dict("active"=>colid.(columns[active]),"kind"=>"leaf_rational","upper"=>"0","bits"=>length(a.z))
++                return :covered,nothing
++            end
++            return (st==MOI.OPTIMAL && isfinite(ub) && abs(ub)<=1e-7 ? :coverage_numerical_only : :unresolved),nothing
++        end
++        raw=value.(a.z)
++        all(x->isfinite(x) && min(abs(x),abs(1-x))<=certificate_tol[],raw) || return :unresolved,nothing
++        abs(value(objective_function(m))-val)<=1e-7 || return :unresolved,nothing
++        u=a.extract()
++        validate_scenario(3,u)
++        check===nothing && return :candidate,u
++        gate,states=classify_pool(check,columns,u)
++        gate==:witness && return gate,u
++        add=findfirst(i->!(i in active) && states[i]==:feasible,eachindex(columns))
++        add===nothing && return :unresolved,nothing
++        push!(active,add)
++        ledger["active"]=copy(active)
++        save()
++    end
++end
+ function inner20(o,builder,u; feasibility)
+     validate_scenario(3,u)
+     m=builder(u)
+     # در فاز امکان‌پذیری فقط الگوی جدید لازم است. تابع صفر هیچ کران هزینه‌ای تولید نمی‌کند.
+     feasibility && @objective(m,Min,0)
+     Core20.solve_tracked!(m;context=feasibility ? "inner_find_feasible_column" : "inner_physical_cost")
+-    row=Core20.min_bounds(m)
++    row=safe_min(m)
++    !feasibility && remember_cost("inner_physical_cost",row)
+     event20(o,"INNER_RESULT","feasibility_only=$feasibility  status=$(row.status)  feasible=$(row.feasible)")
+     return row, row.feasible ? Core20.integer_pattern(m) : nothing
+ end
+ 
+ # قیمت‌گذاری آغازین در یک سناریوی معتبر. هزینهٔ جواب آزاد فقط با کران‌های همان سناریو مقایسه می‌شود.
+-function price20(o,builder,u,columns)
++function price20(o,builder,u,columns;on_bound=row->nothing)
+     pool_lower=Inf
+     best_cost=Inf
+     start=nothing
++    warm_layout=""
+     for (i,col) in enumerate(columns)
+         lp=builder(u)
++        before=layout(all_variables(lp))
+         Core20.fix_pattern!(lp,col)
+         Core20.solve_tracked!(lp;context="price_fixed_column")
+-        row=Core20.min_bounds(lp)
++        row=safe_min(lp)
+         pool_lower=min(pool_lower,row.lower)
+         if row.feasible && row.upper<best_cost
+             best_cost=row.upper
++            warm_layout=before
+             start=value.(all_variables(lp))
+         end
+         event20(o,"PRICE_FIXED","column=$i  status=$(row.status)  lower=$(row.lower)  upper=$(row.upper)")
+@@ -26056,11 +26479,13 @@
+     m=builder(u)
+     if start!==nothing
+         vars=all_variables(m)
+-        length(vars)==length(start) || error("Warm start layout mismatch")
++        layout(vars)==warm_layout || error("Warm start layout mismatch")
+         set_start_value.(vars,start)
+     end
+     Core20.solve_tracked!(m;context="price_unrestricted_physical_cost")
+-    row=Core20.min_bounds(m)
++    row=safe_min(m)
++    remember_cost("price_unrestricted_physical_cost",row)
++    on_bound(row)
+     improved=row.feasible && isfinite(pool_lower) && row.upper < pool_lower-o.tol*max(1.0,abs(pool_lower))
+     event20(o,"PRICE_RESULT","status=$(row.status)  pool_lb=$pool_lower  incumbent=$(row.upper)  lower=$(row.lower)  improved=$improved")
+     improved || return row,nothing
+@@ -26068,125 +26493,228 @@
+     verify=builder(u)
+     Core20.fix_pattern!(verify,p)
+     Core20.solve_tracked!(verify;context="verify_priced_column_lp")
+-    verified=Core20.min_bounds(verify)
++    verified=safe_min(verify)
+     accepted=verified.feasible && verified.upper < pool_lower-o.tol*max(1.0,abs(pool_lower))
+     event20(o,"PRICE_REPLAY","status=$(verified.status)  upper=$(verified.upper)  accepted=$accepted")
+     return row, accepted ? p : nothing
+ end
+ 
+-function optimality20(o,columns,fac,block)
+-    m,extract=Core20.symbolic_master(columns,fac,block,g7_scip_optimizer();seconds=o.seconds)
+-    Core20.solve_tracked!(m;context="optimality_indicator_master")
+-    status=termination_status(m)
+-    status in (MOI.INFEASIBLE,MOI.INFEASIBLE_OR_UNBOUNDED,MOI.DUAL_INFEASIBLE) &&
+-        return status,Inf,nothing
+-    ub=try objective_bound(m) catch; Inf end
+-    feasible=has_values(m) && primal_status(m)==MOI.FEASIBLE_POINT
+-    return status,(isnan(ub) ? Inf : ub),feasible ? extract() : nothing
++function repeat_infeasible(o,builder,u)
++    validate_scenario(3,u)
++    m=builder(u);set_optimizer_attribute(m,"presolve","off")
++    @objective(m,Min,0)
++    set_time_limit_sec(m,budget(o))
++    Core20.solve_tracked!(m;context="unrestricted_infeasibility_replay")
++    return termination_status(m)==MOI.INFEASIBLE
++end
++# کران حل بیشینه فقط بعد از گواه پوشش، کنترل جواب مستر و بازپخش قیمت پذیرفته می‌شود.
++function cost21(o,cols,fac,block,builder)
++    coverage=get(ledger,"coverage",nothing)
++    coverage!==nothing && coverage["upper"]=="0" && !isempty(coverage["active"]) &&
++        issubset(coverage["active"],colid.(cols)) || error("Cost master requires coverage evidence")
++    g7_load_scip_for_plan!()
++    return Base.invokelatest() do
++        g742_solver_check()
++        function bounded(pm,u)
++            block(pm,u)
++            # حدود تک‌متغیرهٔ صریح در سطرهای خطی، با گردکردن رو به بیرون.
++            for c in all_constraints(pm;include_variable_in_set_constraints=false)
++                obj=constraint_object(c);f=obj.func
++                f isa GenericAffExpr && length(f.terms)==1 || continue
++                v,a=only(f.terms)
++                (is_binary(v)||is_integer(v)||is_fixed(v)||a==0) && continue
++                s=obj.set
++                lb=s isa MOI.EqualTo ? s.value : (s isa Union{MOI.GreaterThan,MOI.Interval} ? s.lower : -Inf)
++                ub=s isa MOI.EqualTo ? s.value : (s isa Union{MOI.LessThan,MOI.Interval} ? s.upper : Inf)
++                for (k,lower) in ((lb,a>0),(ub,a<0))
++                    isfinite(k) || continue
++                    b=(Rational{BigInt}(k)-Rational{BigInt}(f.constant))/Rational{BigInt}(a)
++                    if lower
++                        set_lower_bound(v,max(has_lower_bound(v) ? lower_bound(v) : -Inf,Float64(b,RoundDown)))
++                    else
++                        set_upper_bound(v,min(has_upper_bound(v) ? upper_bound(v) : Inf,Float64(b,RoundUp)))
++                    end
++                end
++            end
++        end
++        m,extract=Core20.symbolic_master(cols,fac,bounded,g7_scip_optimizer();seconds=budget(o))
++        objective_sense(m)==MOI.MAX_SENSE || error("Cost master sense mismatch")
++        Core20.solve_tracked!(m;context="covered_cost_master")
++        status=termination_status(m)
++        ub=try objective_bound(m) catch; Inf end
++        status in (MOI.OPTIMAL,MOI.TIME_LIMIT) && isfinite(ub) || return nothing
++        ok,res=feasible_audit(m,o.tol)
++        ok || return nothing
++        incumbent=objective_value(m)
++        isfinite(incumbent) && incumbent<=ub || return nothing
++        u=extract()
++        validate_scenario(3,u)
++        poolcost=Inf
++        for p in cols
++            lp=builder(u)
++            Core20.fix_pattern!(lp,p)
++            set_time_limit_sec(lp,budget(o))
++            Core20.solve_tracked!(lp;context="covered_cost_replay")
++            if termination_status(lp)==MOI.INFEASIBLE && g742_fix14_ray_audit(lp).certificate_numerically_validated
++                continue
++            end
++            ok,_=feasible_audit(lp,o.tol)
++            termination_status(lp)==MOI.OPTIMAL && ok || return nothing
++            poolcost=min(poolcost,objective_value(lp))
++        end
++        isfinite(poolcost) && incumbent<=poolcost+o.tol || return nothing
++        status==MOI.OPTIMAL && abs(poolcost-incumbent)>o.tol && return nothing
++        proof=Dict("pool"=>colid.(cols),"sense"=>"MAX_SENSE","status"=>string(status),
++            "bound"=>ub,"incumbent"=>incumbent,"pool_replay"=>poolcost,"scenario"=>udigest(u),
++            "residual"=>res,"tolerance"=>o.tol,"coverage"=>"rational_cover","covered_pool"=>colid.(cols),"coverage_evidence"=>copy(coverage))
++        tmp=joinpath(o.output,"COST_WITNESS.tsv")
++        proof["snapshot_hash"]=g742_fix17_write_scenario_snapshot(tmp,u)
++        proof["snapshot"]=read(tmp,String)
++        return ub,u,proof
++    end
+ end
+ 
++checkedgap(lo,hi,rtol)=isfinite(lo) && isfinite(hi) && lo<=hi && hi-lo<=rtol*max(1,abs(lo),abs(hi))
+ function fix20_continue(o,cfg,grids,st,z0,state_sha,scope,domain)
+-    builder=u->first(build_certified_stage(3,st,u,grids;direction=:lower,seconds=o.seconds,
++    builder=u->first(build_certified_stage(3,st,u,grids;direction=:lower,seconds=budget(o),
+         capacity_mode=cfg.capacity_mode,initial_station_state=z0))
+-    block=(m,u)->build_certified_stage(3,st,u,grids;direction=:lower,seconds=o.seconds,
++    block=(m,u)->build_certified_stage(3,st,u,grids;direction=:lower,seconds=budget(o),
+         capacity_mode=cfg.capacity_mode,initial_station_state=z0,shared_model=m)
+     fac=m->symbolic_uncertainty(m,3)
+-    columns,best,lower=pool20(o,builder,domain,state_sha,scope)
+-    save_pool20(o,columns,state_sha,scope)
++    cols,best,lo=pool20(o,builder,domain,state_sha,scope)
++    hi=ledger["upper"]=="+Inf" ? Inf : ledger["upper"]
+     history=NamedTuple[]
+-    upper=Inf
+-    result(reason;converged=false,infeasible=false) = Core20.CCGResult(lower,upper,converged,
+-        infeasible,best,columns,history,scope,reason,:exact)
+-    candidates=candidates20()
+-    known_covered=Set{Int}()
+-    for iteration in 1:o.iters
+-        event20(o,"ITERATION","index=$iteration  columns=$(length(columns))")
+-        if iteration==1 && length(columns)==2
+-            probe=first(candidates)
+-            row,p=price20(o,builder,probe,columns)
+-            if row.status==MOI.INFEASIBLE
+-                lower=Inf;upper=Inf;best=probe
+-                push!(history,(;iteration,phase=:pricing,lower,upper,columns=length(columns),master_complete=false))
+-                return result(:robust_infeasible;infeasible=true)
++    candidate=pending[]
++    function save()
++        commitstate(o,cols,best;candidate)
++    end
++    function record(phase,reason)
++        push!(ledger["journal"],Dict("iteration"=>ledger["iteration"],"phase"=>string(phase),
++            "reason"=>string(reason),"lower"=>lo,"upper"=>isfinite(hi) ? hi : "+Inf","columns"=>length(cols)))
++        push!(history,(;iteration=ledger["iteration"],phase,lower=lo,upper=hi,columns=length(cols),
++            master_complete=false,feasibility_status=string(reason),feasibility_bound=get(ledger,"ray_bound",Inf),
++            feasibility_incumbent=get(ledger,"ray_incumbent",NaN)))
++        write_rows(joinpath(o.output,"NATIVE_ITERATIONS.csv"),history)
++    end
++    result(r;done=false,infeasible=false)=Core20.CCGResult(infeasible ? Inf : lo,infeasible ? Inf : hi,done,infeasible,
++        infeasible ? candidate : best,cols,history,scope,r,:numerical)
++    function consider(row,u,context)
++        if row.status in (MOI.TIME_LIMIT,MOI.OPTIMAL) && isfinite(row.lower) && row.lower>lo
++            e=evidence(context,u,row.status,row.lower,row.upper)
++            validate_lb(e,u)
++            row.lower<=hi || error("New lower bound crosses upper bound")
++            e["solver_record"]=copy(ledger["last_cost_record"])
++            ledger["lb"]=e;best=u;lo=row.lower
++        end
++    end
++    event20(o,"RESUMED","LB=$lo phase=$(ledger["phase"]) columns=$(length(cols))")
++    save()
++    try
++        for _ in 1:o.iters
++            budget(o)
++            if ledger["phase"]=="pricing"
++                probe=first(candidates20())
++                function pricing_bound(row)
++                    consider(row,probe,"price_unrestricted_physical_cost")
++                    save()
++                end
++                row,p=price20(o,builder,probe,cols;on_bound=pricing_bound)
++                if row.status==MOI.INFEASIBLE
++                    if !repeat_infeasible(o,builder,probe)
++                        record(:pricing,:infeasibility_unconfirmed);save();return result(:infeasibility_unconfirmed)
++                    end
++                    candidate=probe;ledger["phase"]="inner";save()
++                    record(:pricing,:infeasible_replay_required)
++                    return result(:robust_infeasible;infeasible=true)
++                end
++                if p!==nothing
++                    colid(p) in colid.(cols) && error("Duplicate priced column")
++                    push!(cols,p)
++                end
++                ledger["iteration"]+=1;ledger["phase"]="screen"
++                record(:pricing,p===nothing ? :no_improvement : :column_saved);save()
++                continue
+             end
+-            if row.lower>lower
+-                lower=row.lower;best=probe
++            if ledger["phase"]=="screen"
++                check=(u,p)->audited_column(o,builder,u,p)
++                gate=:unresolved
++                for u in candidates20()
++                    # یک ستون شدنی این سناریو را پوشش می‌دهد. نتیجهٔ مجهول شاهد نیست.
++                    if all(p->check(u,p)==:excluded,cols)
++                        gate=:witness;candidate=u;break
++                    end
++                end
++                save()
++                if gate!=:witness
++                    gate,candidate=separate21(o,cols,fac,block;check,save)
++                end
++                if !(gate in (:covered,:witness))
++                    record(:separation,gate);save()
++                    return result(gate)
++                end
++                ledger["phase"]=gate==:witness ? "inner" : "cost";save()
+             end
+-            if p!==nothing
+-                any(c->c.values==p.values,columns) && error("Duplicate column contradicts pricing bounds")
+-                push!(columns,p)
+-                save_pool20(o,columns,state_sha,scope)
+-                g742_fix17_write_scenario_snapshot(joinpath(o.output,"pricing_scenario.tsv"),probe)
+-                event20(o,"COLUMN_SAVED","iteration=$iteration  columns=$(length(columns))  source=pricing")
+-                push!(history,(;iteration,phase=:pricing,lower,upper,columns=length(columns),master_complete=false))
+-                continue
++            if ledger["phase"]=="cost"
++                a=cost21(o,cols,fac,block,builder)
++                if a===nothing
++                    record(:optimality,:no_validated_bound);save();return result(:optimality_unresolved)
++                end
++                ub,candidate,proof=a
++                lo<=ub || error("Crossed cost bounds")
++                if ub<hi
++                    hi=ub;ledger["upper"]=hi;ledger["upper_proof"]=proof
++                end
++                ledger["inner_objective"]="physical"
++                ledger["phase"]="inner";save()
++                if checkedgap(lo,hi,o.gap)
++                    record(:optimality,:gap);return result(:gap;done=true)
++                end
+             end
+-        end
+-        u=screen20(o,builder,columns,candidates,known_covered)
+-        # نبود شاهد بین این چند سناریو مستلزم حل مستر کامل است.
+-        gate=:witness
+-        if u===nothing
+-            GC.gc()
+-            gate,u=separate20(o,columns,fac,block)
+-        end
+-        phase=gate==:covered ? :optimality : (gate==:witness ? :feasibility : :feasibility_unresolved)
+-        complete=false
+-        record()=push!(history,(;iteration,phase,lower,upper,columns=length(columns),master_complete=complete))
+-        if gate==:unresolved
+-            record()
+-            return result(:feasibility_uncertified)
+-        end
+-        if gate==:covered
+-            GC.gc()
+-            status,ub,u=optimality20(o,columns,fac,block)
+-            complete=status==MOI.OPTIMAL
+-            upper=min(upper,ub)
+-            lower<=upper+1e-6*max(1.0,abs(lower)) || error("Crossed C&CG bounds")
+-            if Core20.gap_closed(lower,upper,o.gap)
+-                record()
+-                return result(:gap;converged=true)
++            physical=get(ledger,"inner_objective","zero")=="physical"
++            row,p=inner20(o,builder,candidate;feasibility=!physical)
++            if row.status==MOI.INFEASIBLE
++                if !repeat_infeasible(o,builder,candidate)
++                    record(:inner,:infeasibility_unconfirmed);save();return result(:infeasibility_unconfirmed)
++                end
++                record(:inner,:infeasible_replay_required);save();return result(:robust_infeasible;infeasible=true)
+             end
+-            if u===nothing
+-                record()
+-                return result(:optimality_unresolved)
++            physical && consider(row,candidate,"inner_physical_cost")
++            save()
++            if p===nothing || audited_column(o,builder,candidate,p)!=:feasible
++                record(:inner,:no_verified_column);save();return result(:inner_unresolved)
+             end
+-        end
+-        g742_fix17_write_scenario_snapshot(joinpath(o.output,"scenario_$iteration.tsv"),u)
+-        row,p=inner20(o,builder,u;feasibility=gate==:witness)
+-        if row.status==MOI.INFEASIBLE
+-            lower=Inf;upper=Inf;best=u
+-            record()
+-            return result(:robust_infeasible;infeasible=true)
+-        end
+-        if gate==:covered && row.lower>lower
+-            lower=row.lower;best=u
+-        end
+-        if gate==:covered
+-            lower<=upper+1e-6*max(1.0,abs(lower)) || error("Crossed updated C&CG bounds")
+-            if Core20.gap_closed(lower,upper,o.gap)
+-                record()
+-                return result(:gap;converged=true)
++            if colid(p) in colid.(cols)
++                record(:inner,:repeated_column);save()
++                return checkedgap(lo,hi,o.gap) ? result(:gap;done=true) : result(:repeated_column_unresolved)
+             end
++            push!(cols,p);candidate=nothing;ledger["inner_objective"]="zero";ledger["phase"]="screen"
++            ledger["iteration"]+=1;record(:inner,:added);save()
+         end
+-        if p===nothing
+-            record()
+-            return result(:inner_no_incumbent)
+-        end
+-        if any(c->Core20.pattern_key(c)==Core20.pattern_key(p),columns)
+-            record()
+-            return result(:repeated_column_unresolved)
++    catch e
++        if e isa BudgetEnd || e isa InterruptException
++            record(:stop,:interrupted_or_deadline);save();return result(:interrupted_or_deadline)
+         end
+-        push!(columns,p)
+-        save_pool20(o,columns,state_sha,scope)
+-        event20(o,"COLUMN_SAVED","iteration=$iteration  columns=$(length(columns))")
+-        record()
++        rethrow()
+     end
+     return result(:iteration_limit)
+ end
+-
+ # مسیر پیش‌فرض کنار فایل است. هر اجرا دایرکتوری مستقلی دارد تا گزارش کهنه با اجرای جدید مخلوط نشود.
+ function run(args::AbstractVector{<:AbstractString}=String[])
+     argv=String.(args)
++    for (flag,target,default) in (("--solver-feas-tol=",solver_tol,1e-8),("--certificate-tol=",certificate_tol,1e-7))
++        args=filter(x->startswith(x,flag),argv)
++        length(args)<=1 || error("Duplicate tolerance option")
++        v=isempty(args) ? default : parse(Float64,last(split(only(args),'=')))
++        isfinite(v) && 1e-10<=v<=1e-5 || error("Invalid tolerance")
++        target[]=v
++        filter!(x->!startswith(x,flag),argv)
++    end
++    options=filter(x->startswith(x,"--wall-seconds="),argv)
++    length(options)<=1 || error("Duplicate wall budget")
++    wall=isempty(options) ? 1800.0 : parse(Float64,split(only(options),'=';limit=2)[2])
++    isfinite(wall) && wall>0 || error("Invalid wall budget")
++    wall_end[]=time()+wall
++    filter!(x->!startswith(x,"--wall-seconds="),argv)
+     resume=filter(a->startswith(a,"--resume-from="),argv)
+     length(resume)<=1 || error("Duplicate --resume-from")
+     FIX20_RESUME[]=isempty(resume) ? nothing : abspath(split(only(resume),'=';limit=2)[2])
+@@ -26206,7 +26734,7 @@
+     println("FIX20_OUTPUT=",o.output)
+     flush(stdout)
+     try
+-        o.mode!="domain" && g7_load_scip_for_plan!()
++        o.mode=="solver-check" && g7_load_scip_for_plan!()
+         return Base.invokelatest(g742_main,argv)
+     catch e
+         open(joinpath(o.output,"EXCEPTION.txt"),"w") do io

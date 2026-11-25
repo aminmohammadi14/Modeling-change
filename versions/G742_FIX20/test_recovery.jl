@@ -21,8 +21,41 @@ F.Core20.fix_pattern!(m,p)
 F.Core20.solve_tracked!(m;context="independent_saved_column_lp")
 row=F.Core20.min_bounds(m)
 println("VERIFIED_SAVED_COLUMN status=",row.status," cost=",row.upper)
-@test row.feasible
+@test row.feasible && isapprox(row.upper,1704104.948319438;rtol=1e-8)
+@test first(F.feasible_audit(m,o.tol))
+@test lower==F.validate_lb(F.ledger["lb"],u)
+@test isapprox(lower,1682535.613777655;rtol=1e-10)
 F.write_rows(joinpath(o.output,"COLUMN_REPLAY.csv"),[row])
+# دو نسل پی‌درپی برای آزمون بازیابی و بازگشت به نسل معتبر قبلی
+F.commitstate(o,cols,u)
+F.commitstate(o,cols,u)
+vars=filter(v->F.is_binary(v)||F.is_integer(v),F.all_variables(builder(first(dom.factory()))))
+ident=F.ledger["identity"]
+d,again,best,_=F.restoredir(o.output,ident,vars)
+@test d["lb"]["bound"]==lower && F.udigest(best)==F.udigest(u)
+@test F.colid.(again)==F.colid.(cols)
+mkdir(joinpath(o.output,".pending-orphan"))
+@test F.readgeneration(o.output,"CURRENT",ident,vars)[1]["lb"]==d["lb"]
+for key in ("stage","predecessor","domain","layout","grid","scope","topology","algorithm")
+    @test_throws ErrorException F.readgeneration(o.output,"CURRENT",merge(ident,Dict(key=>"different")),vars)
+end
+id,h=split(strip(read(joinpath(o.output,"CURRENT"),String)))
+statefile=joinpath(o.output,id,"state.toml")
+original=read(statefile)
+function replace_state(data)
+    F.tablefile(statefile,data)
+    write(joinpath(o.output,"CURRENT"),id*" "*F.digestfile(statefile)*"\n")
+end
+for change in (x->(x["lb"]["bound"]+=1),x->(x["upper"]=0.0),x->push!(x["columns"],first(x["columns"])),
+               x->(x["candidate_file"]="missing"),x->(x["phase"]="unknown"),x->(x["witness_file"]="bad"))
+    data=deepcopy(d)
+    change(data);replace_state(data)
+    @test_throws Exception F.readgeneration(o.output,"CURRENT",ident,vars)
+end
+write(statefile,original);write(joinpath(o.output,"CURRENT"),id*" "*h*"\n")
+write(joinpath(o.output,id,"column_3.tsv"),"damaged")
+@test F.restoredir(o.output,ident,vars)[1]["generation"]!=id
+@test F.restoredir(o.output,ident,vars)[1]["lb"]["bound"]==lower
 mktempdir() do dir
     for f in ["POOL.tsv"; ["column_$i.tsv" for i in 1:3]]
         cp(joinpath(source,f),joinpath(dir,f))

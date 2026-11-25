@@ -1,0 +1,21 @@
+WARNING: Imported binding StyledStrings.@styled_str was undeclared at import time during import to Markdown.
+WARNING: Imported binding StyledStrings.styled was undeclared at import time during import to Markdown.
+WARNING: Imported binding Logging.AbstractLogger was undeclared at import time during import to Test.
+WARNING: Imported binding Logging.LogLevel was undeclared at import time during import to Test.
+WARNING: Imported binding Logging.Info was undeclared at import time during import to Test.
+WARNING: Imported binding Logging.with_logger was undeclared at import time during import to Test.
+WARNING: Imported binding OpenSpecFun_jll.libopenspecfun was undeclared at import time during import to SpecialFunctions.
+WARNING: Imported binding Bzip2_jll.libbzip2 was undeclared at import time during import to CodecBzip2.
+WARNING: Imported binding HiGHS_jll.libhighs was undeclared at import time during import to HiGHS.
+G742_DOMAIN stage=2 branch=paper_zero active=1882 binary_indicators=3764 scenarios=3^1882 scope=REVCS finite-resolution cost-to-go / 0a87667ad6896cfd3b91d710aa8c23d02fa5afb51f003fa6989405b643bf1eff
+G742_DOMAIN stage=3 branch=paper_zero active=1882 binary_indicators=3764 scenarios=3^1882 scope=REVCS finite-resolution cost-to-go / 397064107615c46ecc08f6cb5c948de814fcda707ced93a390f990e6fd4abec1
+MIGRATION  validated unrestricted pricing bound=1.682535613777655e6
+CHECKPOINT_VALIDATED  columns=3  integer_variables=4180  stage=3
+┌ Warning: Current checkpoint rejected; validating previous generation
+│   exception = Damaged resume column
+└ @ Main.REVCSFix20 /workspace/g742/git/versions/G742_FIX20/REVCS19_FIX20.jl:26152
+┌ Warning: Current checkpoint rejected; validating previous generation
+│   exception = Damaged resume column
+└ @ Main.REVCSFix20 /workspace/g742/git/versions/G742_FIX20/REVCS19_FIX20.jl:26152
+VERIFIED_SAVED_COLUMN status=OPTIMAL cost=1.704104948319438e6
+RECOVERY_AND_CORRUPTION_CHECK_PASS

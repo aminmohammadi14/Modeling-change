@@ -1,0 +1,5 @@
+G742_DOMAIN stage=2 branch=paper_zero active=1882 binary_indicators=3764 scenarios=3^1882 scope=REVCS finite-resolution cost-to-go / 0a87667ad6896cfd3b91d710aa8c23d02fa5afb51f003fa6989405b643bf1eff
+G742_DOMAIN stage=3 branch=paper_zero active=1882 binary_indicators=3764 scenarios=3^1882 scope=REVCS finite-resolution cost-to-go / 397064107615c46ecc08f6cb5c948de814fcda707ced93a390f990e6fd4abec1
+CHECKPOINT_VALIDATED  columns=3  integer_variables=4180  stage=3
+VERIFIED_SAVED_COLUMN status=OPTIMAL cost=1.704104948319438e6
+RECOVERY_AND_CORRUPTION_CHECK_PASS

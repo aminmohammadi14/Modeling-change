@@ -125,26 +125,35 @@ jobs:
           retention-days: 90
 
   g742-fix20:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-latest, julia: '1.10.10'}
+          - {os: windows-latest, julia: '1.13.1'}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
         with:
-          version: '1.10.10'
+          version: ${{ matrix.julia }}
       - uses: julia-actions/cache@v2
       - name: Verify archive and test both multi-column Farkas branches
+        shell: bash
         working-directory: versions/G742_FIX20
         run: |
           set -o pipefail
           sha256sum -c SHA256SUMS.txt
           python ../../scripts/package_fix20.py
           julia --project=. -e 'using Pkg; Pkg.instantiate()'
-          julia --project=. test_fix20.jl 2>&1 | tee fix20-tests.log
+          for t in test_fix20 test_status21 test_oracle21 test_recovery test_physical_matrices; do
+            julia --project=. "$t.jl" 2>&1 | tee -a fix20-tests.log
+          done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: G742-FIX20-${{ github.sha }}
+          name: G742-FIX20-${{ matrix.os }}-${{ github.sha }}
           path: |
             versions/G742_FIX20/REVCS19_FIX20_complete.zip
             versions/G742_FIX20/fix20-tests.log

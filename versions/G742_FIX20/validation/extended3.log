@@ -1,0 +1,26 @@
+SOLVER_SETTINGS  threads=1 primal_tol=1.0e-8 dual_tol=1.0e-8 mip_tol=1.0e-8 mask=4194304
+ACTIVE_MASTER  active=[1] full=2 vars=13 rows=34 build_seconds=3.0187790393829346 peak_rss_bytes=617533440
+RELAXATION  status=OPTIMAL solver_ub=0.0 rational_upper=0//1
+G742_SCIP_SMOKE_TEST=PASS
+SOLVER_SETTINGS  threads=1 primal_tol=1.0e-8 dual_tol=1.0e-8 mip_tol=1.0e-8 mask=4194304
+ACTIVE_MASTER  active=[1] full=2 vars=21 rows=66 build_seconds=1.1649270057678223 peak_rss_bytes=678952960
+RELAXATION  status=OPTIMAL solver_ub=1.0 rational_upper=nothing
+START  submitted=true solver_acceptance=UNVERIFIED
+FARKAS_RESULT  status=OPTIMAL bound=1.0 eta=1.0 peak_rss_bytes=679084032
+SOLVER_SETTINGS  threads=1 primal_tol=1.0e-8 dual_tol=1.0e-8 mip_tol=1.0e-8 mask=4194304
+ACTIVE_MASTER  active=[1, 2] full=2 vars=35 rows=117 build_seconds=0.01758599281311035 peak_rss_bytes=679084032
+RELAXATION  status=OPTIMAL solver_ub=0.5 rational_upper=nothing
+START  submitted=true solver_acceptance=UNVERIFIED
+FARKAS_RESULT  status=OPTIMAL bound=-0.0 eta=-0.0 peak_rss_bytes=679084032
+PARTITION_LEAF  leaf=0 status=OPTIMAL upper=0//1
+PARTITION_LEAF  leaf=1 status=OPTIMAL upper=0//1
+PARTITION_LEAF  leaf=2 status=OPTIMAL upper=0//1
+PARTITION_LEAF  leaf=4 status=OPTIMAL upper=0//1
+PARTITION_LEAF  leaf=5 status=OPTIMAL upper=0//1
+PARTITION_LEAF  leaf=6 status=OPTIMAL upper=0//1
+PARTITION_LEAF  leaf=8 status=OPTIMAL upper=0//1
+PARTITION_LEAF  leaf=9 status=OPTIMAL upper=0//1
+PARTITION_LEAF  leaf=10 status=OPTIMAL upper=0//1
+G742_SCIP_SMOKE_TEST=PASS
+Test Summary:                | Pass  Total   Time
+finite 3 × 3 robust recourse |   31     31  31.0s
