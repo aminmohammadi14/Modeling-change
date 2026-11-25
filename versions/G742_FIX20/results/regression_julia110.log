@@ -1,0 +1,18 @@
+FARKAS_PRESOLVE  disabled=FourierMotzkin  mask=4194304
+FARKAS_MODEL  columns=2  variables=10
+FARKAS_RESULT  status=OPTIMAL  gate=witness  bound=1.0
+FARKAS_PRESOLVE  disabled=FourierMotzkin  mask=4194304
+FARKAS_MODEL  columns=2  variables=10
+FARKAS_RESULT  status=OPTIMAL  gate=covered  bound=-0.0
+Test Summary:                        | Pass  Total  Time
+multi-column separation and coverage |    3      3  8.8s
+PRICE_FIXED  column=1  status=OPTIMAL  lower=2.0  upper=2.0
+PRICE_FIXED  column=2  status=OPTIMAL  lower=3.0  upper=3.0
+PRICE_RESULT  status=OPTIMAL  pool_lb=2.0  incumbent=1.0  lower=1.0  improved=true
+PRICE_REPLAY  status=OPTIMAL  upper=1.0  accepted=true
+PRICE_FIXED  column=1  status=OPTIMAL  lower=2.0  upper=2.0
+PRICE_FIXED  column=2  status=OPTIMAL  lower=3.0  upper=3.0
+PRICE_FIXED  column=3  status=OPTIMAL  lower=1.0  upper=1.0
+PRICE_RESULT  status=OPTIMAL  pool_lb=1.0  incumbent=1.0  lower=1.0  improved=false
+Test Summary:                                       | Pass  Total  Time
+verified improvement against all saved column costs |    3      3  1.3s
