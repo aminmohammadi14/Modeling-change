@@ -1,0 +1,9 @@
+context,sense,termination,primal,variables,constraints,seconds,allocated_bytes,gc_seconds,incumbent,bound
+"fixed_column_feasibility_lp","MIN_SENSE","INFEASIBLE","NO_SOLUTION","75481","153238","25.952159326","124232272","0.034479193","NaN","0.0"
+"fixed_column_feasibility_lp","MIN_SENSE","OPTIMAL","FEASIBLE_POINT","75481","153238","2.356755126","118088080","0.01967693","0.0","0.0"
+"fixed_column_feasibility_lp","MIN_SENSE","OPTIMAL","FEASIBLE_POINT","75481","153238","1.950026052","118033680","0.017395957","0.0","0.0"
+"fixed_column_feasibility_lp","MIN_SENSE","INFEASIBLE","NO_SOLUTION","75481","153238","25.489658712","116595472","0.035093494","NaN","0.0"
+"fixed_column_feasibility_lp","MIN_SENSE","OPTIMAL","FEASIBLE_POINT","75481","153238","2.245987923","118061968","0.014280755","0.0","0.0"
+"fixed_column_feasibility_lp","MIN_SENSE","INFEASIBLE","NO_SOLUTION","75481","153238","25.377402658","116595472","0.022675188","NaN","0.0"
+"fixed_column_feasibility_lp","MIN_SENSE","OPTIMAL","FEASIBLE_POINT","75481","153238","2.002621413","118088144","0.016432954","0.0","0.0"
+"multi_column_sign_aware_farkas","MAX_SENSE","TIME_LIMIT","NO_SOLUTION","639163","1802864","41.691004409","983028064","0.213887112","NaN","Inf"

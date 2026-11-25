@@ -1,0 +1,12 @@
+CHECKPOINT_VALIDATED	columns=3  integer_variables=4180  stage=3
+ITERATION	index=1  columns=3
+SCREEN_LP	scenario=high demand, low renewable  column=1  status=INFEASIBLE
+SCREEN_LP	scenario=high demand, low renewable  column=2  status=OPTIMAL
+SCREEN_LP	scenario=FIX13 independent numerical all-minus  column=1  status=OPTIMAL
+SCREEN_LP	scenario=FIX13 independent numerical nominal  column=1  status=INFEASIBLE
+SCREEN_LP	scenario=FIX13 independent numerical nominal  column=2  status=OPTIMAL
+SCREEN_LP	scenario=FIX13 independent numerical all-plus  column=1  status=INFEASIBLE
+SCREEN_LP	scenario=FIX13 independent numerical all-plus  column=2  status=OPTIMAL
+FARKAS_PRESOLVE	disabled=FourierMotzkin  mask=4194304
+FARKAS_MODEL	columns=3  variables=639163
+FARKAS_RESULT	status=TIME_LIMIT  gate=unresolved  bound=Inf

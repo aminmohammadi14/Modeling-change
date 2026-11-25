@@ -1,0 +1,2 @@
+iteration,phase,lower,upper,columns,master_complete,feasibility_status,feasibility_bound,feasibility_incumbent
+"1","feasibility_unresolved","1.1786101129069915e6","Inf","3","false","","NaN","NaN"

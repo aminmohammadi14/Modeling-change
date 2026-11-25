@@ -1,0 +1,2 @@
+termination_status,primal_status,solver_reported_incumbent,independent_incumbent_validated,constraints_checked,violated_constraints,maximum_constraint_violation,integrality_violations,incumbent_objective,tolerance,solver_start_acceptance,oracle_certified
+"TIME_LIMIT","NO_SOLUTION","false","false","0","0","NaN","0","NaN","1.0e-6","UNVERIFIED","false"
