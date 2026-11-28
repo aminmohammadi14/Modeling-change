@@ -1,0 +1,36 @@
+{
+  "domain": "3^1882",
+  "predecessor": "3c66893748c4b19be962a1b8e4fc5bcbec26797db02b2833ffdfbb990112ce4a",
+  "benchmarks": [
+    {
+      "source": "119dd9a archived monolithic",
+      "full_pool": 3,
+      "active": 3,
+      "variables": 639163,
+      "constraints": 1802864,
+      "per_solve_s": 25,
+      "driver_wall_s": 252.8445520401001,
+      "peak_rss_bytes": null,
+      "objective_bound": "+Inf",
+      "proved_coverage": false
+    },
+    {
+      "source": "targeted active subset",
+      "full_pool": 3,
+      "active": 1,
+      "variables": 217591,
+      "constraints": 612826,
+      "per_solve_s": 25,
+      "driver_wall_s": 257.04961013793945,
+      "peak_rss_bytes": 1509556224,
+      "root_lp_status": "TIME_LIMIT / NO_SOLUTION",
+      "root_lp_displayed_upper": 0.0,
+      "accepted_lp_proof": false,
+      "mip_status": "TIME_LIMIT / FEASIBLE_POINT",
+      "incumbent": 0.0,
+      "objective_bound": "+Inf",
+      "proved_coverage": false
+    }
+  ],
+  "outcome": "smaller master; no demonstrated wall-time or global bound improvement"
+}

@@ -1,0 +1,2 @@
+iteration,phase,lower,upper,columns,master_complete,feasibility_status,feasibility_bound,feasibility_incumbent
+"1","separation","1.682535613777655e6","Inf","3","false","unresolved","Inf","-0.0"

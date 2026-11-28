@@ -132,7 +132,7 @@ jobs:
           - {os: ubuntu-latest, julia: '1.10.10'}
           - {os: windows-latest, julia: '1.13.1'}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
@@ -143,11 +143,11 @@ jobs:
         shell: bash
         working-directory: versions/G742_FIX20
         run: |
-          set -o pipefail
+          set -eu -o pipefail
           sha256sum -c SHA256SUMS.txt
           python ../../scripts/package_fix20.py
           julia --project=. -e 'using Pkg; Pkg.instantiate()'
-          for t in test_fix20 test_status21 test_oracle21 test_recovery test_physical_matrices; do
+          for t in test_fix20 test_status21 test_oracle21 test_rays21 test_recovery test_physical_matrices test_fixed_costs21; do
             julia --project=. "$t.jl" 2>&1 | tee -a fix20-tests.log
           done
       - uses: actions/upload-artifact@v4

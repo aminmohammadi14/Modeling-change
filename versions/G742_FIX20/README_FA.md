@@ -46,3 +46,11 @@ julia --project=. test_oracle21.jl
 julia --project=. test_status21.jl
 julia --project=. test_physical_matrices.jl
 ```
+
+برای اجرای مستقیم از نقطهٔ بازیابی آمادهٔ همین نسخه، پس از نصب وابستگی‌ها در پوشهٔ استخراج‌شده دستور زیر را اجرا کنید.
+
+```powershell
+julia --project=. REVCS19_FIX20.jl --resume-from=validation/migrated_checkpoint --threads=2 --seconds-per-solve=90 --wall-seconds=900
+```
+
+خروجی آزمون هزینهٔ ۱۵ زوج سناریو و ستون در `validation/COST_LP_AUDIT.csv` است. در ۱۱ مورد قیمت اولیه و دوگان تطبیق داشتند و در چهار مورد پرتو ناممکن‌بودن همان ستون تأیید شد.

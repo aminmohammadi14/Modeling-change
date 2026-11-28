@@ -7424,7 +7424,7 @@ if abspath(PROGRAM_FILE)==abspath(@__FILE__)
     main()
 end
 """)
-    resource20("driver.jl","1a2ab4e8f07ab8238fd0605e5cdd19ff62b503d9a2976fa5c0cfb37f266e9e46","""# REVCS19 Gate 7.4.2 FIX9 -- exact sign-aware Farkas normalization audit (non-certifying).
+    resource20("driver.jl","ebd5c6ac4efc4af1919af7b91f3593efd84190ae086e7a767ec5e5f5ae2b7c3c","""# REVCS19 Gate 7.4.2 FIX9 -- exact sign-aware Farkas normalization audit (non-certifying).
 # Frozen 96h physical model source is included without modifications.
 using SHA
 using JuMP
@@ -8211,7 +8211,7 @@ function g742_main(args)
     r=fix20_continue(o,cfg,grids,st,z0,state_sha,scope,domain)
     elapsed=time()-start
     r.bound_role==:numerical && r.scope==scope || error(\"Oracle bound role/scope mismatch\")
-    write_rows(joinpath(o.output,\"NATIVE_SOLVER_TRACE.csv\"),REVCSCertifiedCore.SOLVER_TRACE)
+    cumulative_trace!(joinpath(o.output,\"NATIVE_SOLVER_TRACE.csv\"))
     write_rows(joinpath(o.output,\"NATIVE_ITERATIONS.csv\"),
         [(;iteration=hasproperty(x,:iteration) ? x.iteration : 0,
            phase=hasproperty(x,:phase) ? string(x.phase) : \"\",
@@ -25854,7 +25854,7 @@ const Core20 = REVCSCertifiedCore
 
 function event20(o, step, detail)
     if !isempty(Core20.SOLVER_TRACE)
-        write_rows(joinpath(o.output,"NATIVE_SOLVER_TRACE.csv"),Core20.SOLVER_TRACE)
+        cumulative_trace!(joinpath(o.output,"NATIVE_SOLVER_TRACE.csv"))
     end
     open(joinpath(o.output,"PROGRESS.tsv"),"a") do io
         println(io, step, '\t', detail)
@@ -26062,10 +26062,8 @@ function commitstate(o,cols,best;candidate=nothing)
         write(joinpath(dir,"upper_witness.tsv"),proof["snapshot"])
         digestfile(joinpath(dir,"upper_witness.tsv"))==proof["snapshot_hash"] || error("Cost witness changed")
     end
-    if !isempty(Core20.SOLVER_TRACE)
-        write_rows(joinpath(dir,"trace.csv"),Core20.SOLVER_TRACE)
-        write_rows(joinpath(o.output,"NATIVE_SOLVER_TRACE.csv"),Core20.SOLVER_TRACE)
-    end
+    cumulative_trace!(joinpath(dir,"trace.csv"))
+    cumulative_trace!(joinpath(o.output,"NATIVE_SOLVER_TRACE.csv"))
     d["trace_digest"]=isfile(joinpath(dir,"trace.csv")) ? digestfile(joinpath(dir,"trace.csv")) : ""
     validate_lb(d["lb"],best)
     tablefile(joinpath(dir,"state.toml"),d)
@@ -26122,9 +26120,18 @@ function readgeneration(dir,header,ident,vars)
     (d["phase"]=="inner")==(!isnothing(candidate)) || error("Candidate phase mismatch")
     tr=d["trace_digest"]
     isempty(tr) || digestfile(joinpath(path,"trace.csv"))==tr || error("Trace checksum mismatch")
+    d["_saved_trace"]=isempty(tr) ? "" : read(joinpath(path,"trace.csv"),String)
     e=d["lb"]
     validate_lb(e,u)
     if haskey(e,"solver_record")
+        rows=g742_csv_records(collect(codeunits(d["_saved_trace"])))
+        length(rows)>1 || error("Missing unrestricted solver trace")
+        matching=any(rows[2:end]) do x
+            r=Dict(zip(rows[1],x))
+            r["context"]==e["context"] && r["sense"]=="MIN_SENSE" && r["termination"]==e["status"] &&
+                parse(Float64,r["bound"])==e["bound"]
+        end
+        matching || error("Retained lower bound missing from solve trace")
         t=e["solver_record"]
         all(k->t[k]==e[k],("context","sense","status","bound","incumbent")) || error("Bound evidence mismatch")
     elseif e["context"]=="archived_unrestricted"
@@ -26177,13 +26184,14 @@ function startledger(o,vars,scope,state_sha,domain,witness,info)
         "solver_tol"=>solver_tol[],"certificate_tol"=>certificate_tol[],"audit_tol"=>o.tol,
         "topology"=>digestfile(G742_TOPOLOGY),"domain"=>string(domain.cardinality),
         "transform"=>string(MODEL_SOURCE_HASH,":symbolic_uncertainty/3:",domain.scope),"layout"=>layout(vars))
-    empty!(ledger); pending[]=nothing
+    empty!(ledger); pending[]=nothing;inherited_trace[]=""
     merge!(ledger,Dict("identity"=>ident,"run"=>string(uuid4()),"parent"=>"","iteration"=>0,
       "phase"=>"pricing","cache"=>Dict{String,Any}(),"active"=>[1],"upper"=>"+Inf","journal"=>Any[],
       "lb"=>evidence("archived_unrestricted",witness,info["next_inner_termination"],
           parse(Float64,info["next_inner_lower_bound"]),parse(Float64,info["next_inner_incumbent"]))))
     if !isnothing(resume) && (isfile(joinpath(resume,"CURRENT")) || isfile(joinpath(resume,"PREVIOUS")))
         d,cols,u,candidate=restoredir(resume,ident,vars)
+        inherited_trace[]=pop!(d,"_saved_trace")
         merge!(ledger,d)
         ledger["parent"]=d["generation"];ledger["run"]=string(uuid4());pending[]=candidate
         return cols,u,validate_lb(d["lb"],u)
@@ -26206,6 +26214,7 @@ function migratepricing(dir,scope,sha)
     udigest(u)==udigest(first(candidates20())) && t["sense"]=="MIN_SENSE" || error("Migration scenario or sense")
     e=evidence(t["context"],u,t["termination"],parse(Float64,t["bound"]),parse(Float64,t["incumbent"]))
     validate_lb(e,u)==parse(Float64,r["lower_bound"]) || error("Migration bound mismatch")
+    inherited_trace[]=read(joinpath(dir,files[2]),String)
     return u,e
 end
 
@@ -26227,6 +26236,25 @@ function remember_cost(context,row)
     isfinite(row.lower) && row.lower!=native.bound && error("Inconsistent bound record")
     ledger["last_cost_record"]=Dict("context"=>context,"bound"=>row.lower,
         "status"=>string(row.status),"incumbent"=>isfinite(row.upper) ? row.upper : "+Inf","sense"=>"MIN_SENSE")
+end
+
+const inherited_trace=Ref("")
+function cumulative_trace!(target)
+    rows=Core20.SOLVER_TRACE
+    prefix=inherited_trace[]
+    if isempty(rows)
+        isempty(prefix) || atomicfile(io->write(io,prefix),target)
+        return
+    end
+    tmp=target*".fragment"
+    write_rows(tmp,rows)
+    content=read(tmp,String);rm(tmp)
+    if !isempty(prefix)
+        h,tail=split(content,'\n';limit=2)
+        first(split(prefix,'\n';limit=2))==h || error("Solver trace schema changed")
+        content=prefix*(endswith(prefix,"\n") ? "" : "\n")*tail
+    end
+    atomicfile(io->write(io,content),target)
 end
 # انتخاب سناریو با استفاده از همان متغیرهای دودویی و پروفیل‌های فیزیکی مدل
 function candidates20()
@@ -26337,7 +26365,7 @@ function feasible_audit(m,tol)
     return isfinite(residual) && residual<=tol,residual
 end
 
-function audited_column(o,builder,u,p)
+function audited_column(o,builder,u,p;verify_exclusion=false)
     key=udigest(u)*":"*colid(p)
     cache=ledger["cache"]
     if haskey(cache,key)
@@ -26359,6 +26387,18 @@ function audited_column(o,builder,u,p)
         merge!(entry,Dict("status"=>"feasible","residual"=>res))
     elseif termination_status(m)==MOI.INFEASIBLE
         ray=g742_fix14_ray_audit(m;tolerance=min(1e-8,o.tol))
+        if verify_exclusion && !ray.certificate_numerically_validated
+            # یک هدف اقتصادی می‌تواند برای همان مجموعهٔ شدنی پرتو قابل ممیزی به دست دهد.
+            replay=builder(u); Core20.fix_pattern!(replay,p)
+            set_time_limit_sec(replay,budget(o))
+            Core20.solve_tracked!(replay;context="positive_witness_independent_cost_lp")
+            if termination_status(replay)==MOI.INFEASIBLE
+                ray=g742_fix14_ray_audit(replay;tolerance=min(1e-8,o.tol))
+            elseif first(feasible_audit(replay,o.tol))
+                entry["status"]="feasible"
+                entry["residual"]=last(feasible_audit(replay,o.tol))
+            end
+        end
         entry["margin"]=isfinite(ray.normalized_farkas_margin) ? ray.normalized_farkas_margin : "unknown"
         entry["ray_status"]=ray.status
         if ray.certificate_numerically_validated && ray.normalized_farkas_margin>o.tol
@@ -26646,7 +26686,7 @@ function fix20_continue(o,cfg,grids,st,z0,state_sha,scope,domain)
                 end
                 save()
                 if gate!=:witness
-                    gate,candidate=separate21(o,cols,fac,block;check,save)
+                    gate,candidate=separate21(o,cols,fac,block;check=(u,p)->audited_column(o,builder,u,p;verify_exclusion=true),save)
                 end
                 if !(gate in (:covered,:witness))
                     record(:separation,gate);save()

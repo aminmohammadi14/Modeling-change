@@ -1,0 +1,3 @@
+G742_DOMAIN stage=2 branch=paper_zero active=1882 binary_indicators=3764 scenarios=3^1882 scope=REVCS finite-resolution cost-to-go / 0a87667ad6896cfd3b91d710aa8c23d02fa5afb51f003fa6989405b643bf1eff
+G742_DOMAIN stage=3 branch=paper_zero active=1882 binary_indicators=3764 scenarios=3^1882 scope=REVCS finite-resolution cost-to-go / 397064107615c46ecc08f6cb5c948de814fcda707ced93a390f990e6fd4abec1
+MIGRATION_COMPLETE  columns=3  lower=1.682535613777655e6  scenario=e1e8408549e2cd79be3bfa953443ef896b78e49e0615f8d82a189f95278275c6

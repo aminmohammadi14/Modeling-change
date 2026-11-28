@@ -1,0 +1,2 @@
+termination_status,primal_status,solver_reported_incumbent,independent_incumbent_validated,constraints_checked,violated_constraints,maximum_constraint_violation,integrality_violations,incumbent_objective,tolerance,solver_start_acceptance,oracle_certified
+"TIME_LIMIT","FEASIBLE_POINT","true","true","612826","0","0.0","0","-0.0","1.0e-7","UNVERIFIED","false"

@@ -1,0 +1,11 @@
+FIX20_OUTPUT=/workspace/harden/pricing-final
+G742_DOMAIN stage=2 branch=paper_zero active=1882 binary_indicators=3764 scenarios=3^1882 scope=REVCS finite-resolution cost-to-go / 0a87667ad6896cfd3b91d710aa8c23d02fa5afb51f003fa6989405b643bf1eff
+G742_DOMAIN stage=3 branch=paper_zero active=1882 binary_indicators=3764 scenarios=3^1882 scope=REVCS finite-resolution cost-to-go / 397064107615c46ecc08f6cb5c948de814fcda707ced93a390f990e6fd4abec1
+G742_NATIVE_FULL_PHI3_START branch=paper_zero max_iters=1 per_solve_sec=90.0 gap=0.001
+CHECKPOINT_VALIDATED  columns=2  integer_variables=4180  stage=3
+RESUMED  LB=1.1786101129069915e6 phase=pricing columns=2
+PRICE_FIXED  column=1  status=INFEASIBLE  lower=Inf  upper=Inf
+PRICE_FIXED  column=2  status=OPTIMAL  lower=1.7233708113743616e6  upper=1.72337081138961e6
+PRICE_RESULT  status=TIME_LIMIT  pool_lb=1.7233708113743616e6  incumbent=1.7041049483309772e6  lower=1.682535613777655e6  improved=true
+PRICE_REPLAY  status=OPTIMAL  upper=1.704104948319438e6  accepted=true
+G742_RESULT branch=paper_zero status=UNRESOLVED_FULL_PHI3_ORACLE reason=iteration_limit LB=1.682535613777655e6 UB=Inf

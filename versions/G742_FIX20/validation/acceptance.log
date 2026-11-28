@@ -1,0 +1,17 @@
+FIX20_OUTPUT=/workspace/harden/acceptance
+G742_DOMAIN stage=2 branch=paper_zero active=1882 binary_indicators=3764 scenarios=3^1882 scope=REVCS finite-resolution cost-to-go / 0a87667ad6896cfd3b91d710aa8c23d02fa5afb51f003fa6989405b643bf1eff
+G742_DOMAIN stage=3 branch=paper_zero active=1882 binary_indicators=3764 scenarios=3^1882 scope=REVCS finite-resolution cost-to-go / 397064107615c46ecc08f6cb5c948de814fcda707ced93a390f990e6fd4abec1
+G742_NATIVE_FULL_PHI3_START branch=paper_zero max_iters=1 per_solve_sec=25.0 gap=0.001
+MIGRATION  validated unrestricted pricing bound=1.682535613777655e6
+CHECKPOINT_VALIDATED  columns=3  integer_variables=4180  stage=3
+RESUMED  LB=1.682535613777655e6 phase=screen columns=3
+COLUMN_REPLAY  e1e8408549e2cd79be3bfa953443ef896b78e49e0615f8d82a189f95278275c6:cbc93a9cad9074973a726e41e0ea754b9404f3561909dd1f3c771a5a05945be2 Dict{String, Any}("status" => "unknown", "ray_status" => "UNRESOLVED_NO_PRIMAL_INFEASIBILITY_CERTIFICATE", "termination" => "INFEASIBLE", "margin" => "unknown")
+COLUMN_REPLAY  b1f3fa0e7096e84061acdbba7762174fd4cd0de33cc177653dbf92c589e97887:cbc93a9cad9074973a726e41e0ea754b9404f3561909dd1f3c771a5a05945be2 Dict{String, Any}("status" => "feasible", "termination" => "OPTIMAL", "residual" => 1.772641553543508e-7)
+COLUMN_REPLAY  0aaf84b47b9ff96d12aa3d541778d5641b2330474f9959ee8463a4acb8b425c3:cbc93a9cad9074973a726e41e0ea754b9404f3561909dd1f3c771a5a05945be2 Dict{String, Any}("status" => "unknown", "ray_status" => "UNRESOLVED_NO_PRIMAL_INFEASIBILITY_CERTIFICATE", "termination" => "INFEASIBLE", "margin" => "unknown")
+COLUMN_REPLAY  d89694e1848a095050ab86e14a1dcabc2dd82f81ffd70ce5b5eef73d5261e277:cbc93a9cad9074973a726e41e0ea754b9404f3561909dd1f3c771a5a05945be2 Dict{String, Any}("status" => "unknown", "ray_status" => "UNRESOLVED_NO_PRIMAL_INFEASIBILITY_CERTIFICATE", "termination" => "INFEASIBLE", "margin" => "unknown")
+SOLVER_SETTINGS  threads=2 primal_tol=1.0e-8 dual_tol=1.0e-8 mip_tol=1.0e-8 mask=4194304
+ACTIVE_MASTER  active=[1] full=3 vars=217591 rows=612826 build_seconds=84.81607508659363 peak_rss_bytes=1411375104
+RELAXATION  status=TIME_LIMIT solver_ub=0.0 rational_upper=nothing
+START  submitted=true solver_acceptance=UNVERIFIED
+FARKAS_RESULT  status=TIME_LIMIT bound=Inf eta=-0.0 peak_rss_bytes=1509556224
+G742_RESULT branch=paper_zero status=UNRESOLVED_FULL_PHI3_ORACLE reason=unresolved LB=1.682535613777655e6 UB=Inf

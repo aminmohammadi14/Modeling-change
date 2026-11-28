@@ -1,0 +1,7 @@
+context,sense,termination,primal,variables,constraints,seconds,allocated_bytes,gc_seconds,incumbent,bound
+"fixed_column_feasibility_lp","MIN_SENSE","INFEASIBLE","NO_SOLUTION","75481","153238","25.985806304","124243808","0.025139979","NaN","0.0"
+"fixed_column_feasibility_lp","MIN_SENSE","OPTIMAL","FEASIBLE_POINT","75481","153238","2.885521194","118033680","0.021446132","0.0","0.0"
+"fixed_column_feasibility_lp","MIN_SENSE","INFEASIBLE","NO_SOLUTION","75481","153238","25.643517616","116595472","0.017527221","NaN","0.0"
+"fixed_column_feasibility_lp","MIN_SENSE","INFEASIBLE","NO_SOLUTION","75481","153238","25.769766976","116595472","0.050519768","NaN","0.0"
+"active_farkas_root_relaxation","MAX_SENSE","TIME_LIMIT","NO_SOLUTION","217591","619630","26.382636151","356119552","0.06889","NaN","0.0"
+"active_farkas_mip","MAX_SENSE","TIME_LIMIT","FEASIBLE_POINT","217591","612826","25.244267501","6897560","0.0","-0.0","Inf"
